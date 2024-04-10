@@ -19,6 +19,9 @@ export class User extends Document {
   @Prop({ required: [true, 'please provide valid password'] })
   password: string;
 
+  @Prop()
+  state: string = 'active';
+
   @Prop({ required: [true, 'please provide valid password'] })
   confirmPassword: string;
 
@@ -26,7 +29,7 @@ export class User extends Document {
   resetPasswordToken: string;
 
   @Prop()
-  resetPasswordExpires: number;
+  resetPasswordExpires: Date;
 
   @Prop()
   passwordChangedAt: Date;
