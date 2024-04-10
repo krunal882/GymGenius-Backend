@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { ForceType, ExerciseLevel } from '../../utils/role.enum';
 
 @Schema()
 export class Exercise extends Document {
@@ -10,36 +11,12 @@ export class Exercise extends Document {
 
   @Prop({
     required: [true, 'Please provide the exercise name'],
-    enum: ['push', 'pull', 'static'],
+    enum: [ForceType],
   })
   force: string;
 
-  // @Prop({
-  //   required: [true, 'Please provide the type of exercise'],
-  //   enum: ['strength', 'cardio', 'weightlifting', 'powerlifting', 'stretching'],
-  // })
-  // type: string;
-
-  // @Prop({
-  //   required: [true, 'Please provide the muscle targeted by the exercise'],
-  //   enum: [
-  //     'biceps',
-  //     'calves',
-  //     'chest',
-  //     'forearms',
-  //     'hamstrings',
-  //     'lats',
-  //     'lower_back',
-  //     'middle_back',
-  //     'neck',
-  //     'traps',
-  //     'triceps',
-  //   ],
-  // })
-  // muscle: string;
-
   @Prop({
-    enum: ['beginner', 'intermediate', 'expert'],
+    enum: [ExerciseLevel],
     default: 'intermediate',
   })
   level: string;
@@ -62,8 +39,6 @@ export class Exercise extends Document {
 
   @Prop()
   secondaryMuscles: string[];
-  // @Prop({ enum: ['favorite'] })
-  // category: string;
 
   @Prop({ required: [true, 'please provide instructions for the exercise'] })
   instructions: string[];
