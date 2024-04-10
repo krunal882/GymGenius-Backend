@@ -1,8 +1,20 @@
-import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { DietPlanService } from './diet-plan.service';
-import { DietPlan } from './schema/diet-paln.schema';
+import mongoose from 'mongoose';
 import { dietPlanDto } from './dto/diet-plan.dto';
+import { updateDiet } from './dto/diet-update.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { UseGuards } from '@nestjs/common';
 @Controller('diet-plans')
+@UseGuards(AuthGuard)
 export class DietPlanController {
   constructor(private readonly dietPlanService: DietPlanService) {}
 
@@ -25,12 +37,21 @@ export class DietPlanController {
   }
 
   @Post('/add')
-  async createDietPlan(@Body() dietPlanDto: dietPlanDto): Promise<DietPlan> {
-    return this.dietPlanService.createDietPlan(dietPlanDto);
+  async createDietPlan(@Body() DietPlanDto: dietPlanDto): Promise<string> {
+    return this.dietPlanService.createDietPlan(DietPlanDto);
   }
 
   @Delete('/delete')
   async deleteDietPlan(@Query('id') id: string): Promise<void> {
     this.dietPlanService.deleteDietPlan(id);
+  }
+
+  @Patch('/update')
+  async updateDietPlan(
+    @Query('id') id: mongoose.Types.ObjectId,
+    @Body() updateData: updateDiet,
+  ): Promise<string> {
+    await this.dietPlanService.updateDietPlan(id, updateData);
+    return 'diet plan updated successfully';
   }
 }
