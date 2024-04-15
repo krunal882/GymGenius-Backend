@@ -1,9 +1,22 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './schema/user.schema';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response } from 'express';
+import mongoose from 'mongoose';
+import { updateUser } from './dto/user-update.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +36,8 @@ export class AuthController {
   }
 
   @Post('/forgotPassword')
-  async forgotPassword(@Body('email') email: string): Promise<string> {
+  async forgotPassword(@Body() body: { email: string }): Promise<string> {
+    const { email } = body;
     return await this.authService.forgotPassword(email);
   }
 
@@ -38,5 +52,44 @@ export class AuthController {
       newPassword,
       newConfirmPassword,
     );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/users')
+  async getAllUser() {
+    return await this.authService.getAllUser();
+  }
+
+  @Get('/filtered')
+  async getFilteredUser(
+    @Query('name') name: string,
+    @Query('email') email: string,
+    @Query('age') age: number,
+    @Query('role') role: string,
+    @Query('state') state: string,
+  ) {
+    const queryParams = {
+      name,
+      email,
+      age,
+      role,
+      state,
+    };
+    return await this.authService.getFilteredUser(queryParams);
+  }
+
+  @Delete('/deleteUser')
+  async deleteUser(@Query('id') id: string): Promise<string> {
+    this.authService.deleteUser(id);
+    return 'exercise deleted successfully';
+  }
+
+  @Patch('/updateUser')
+  async updateUser(
+    @Query('id') id: mongoose.Types.ObjectId,
+    @Body() updateData: updateUser,
+  ): Promise<string> {
+    await this.authService.updateUser(id, updateData);
+    return 'user updated successfully';
   }
 }

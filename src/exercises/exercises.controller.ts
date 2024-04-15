@@ -1,7 +1,21 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ExercisesService } from './exercises.service';
+import { exerciseDto } from './dto/exercise.dto';
+import mongoose from 'mongoose';
+import { updateExercise } from './dto/exercise-update.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('exercises')
+@UseGuards(AuthGuard)
 export class ExercisesController {
   constructor(private readonly exerciseService: ExercisesService) {}
 
@@ -12,7 +26,7 @@ export class ExercisesController {
   }
 
   @Get('/filtered')
-  async getFilteredPlan(
+  async getFilteredExercise(
     @Query('force') force: string,
     @Query('level') level: string,
     @Query('equipment') equipment: string,
@@ -31,5 +45,26 @@ export class ExercisesController {
       name,
     };
     return await this.exerciseService.getFilteredExercise(queryParams);
+  }
+
+  @Post('/addExercise')
+  async createExercise(@Body() ExerciseDto: exerciseDto): Promise<string> {
+    await this.exerciseService.createExercise(ExerciseDto);
+    return 'exercise added successfully';
+  }
+
+  @Delete('/deleteExercise')
+  async deleteExercise(@Query('id') id: string): Promise<string> {
+    this.exerciseService.deleteExercise(id);
+    return 'exercise deleted successfully';
+  }
+
+  @Patch('/updateExercise')
+  async updateDietPlan(
+    @Query('id') id: mongoose.Types.ObjectId,
+    @Body() updateData: updateExercise,
+  ): Promise<string> {
+    await this.exerciseService.updateExercise(id, updateData);
+    return 'exercise updated successfully';
   }
 }

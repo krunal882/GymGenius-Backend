@@ -1,4 +1,4 @@
-import { deleteOne } from './../factoryFunction';
+import { createOne, deleteOne, updateOne } from './../factoryFunction';
 import {
   BadRequestException,
   Injectable,
@@ -37,9 +37,17 @@ export class DietPlanService {
     return await this.dietPlanModel.find(filter);
   }
 
-  async createDietPlan(dietPlanDto: dietPlanDto): Promise<DietPlan> {
-    const newDietPlan = await this.dietPlanModel.create(dietPlanDto);
-    return newDietPlan;
+  async createDietPlan(dietPlanDto: dietPlanDto): Promise<string> {
+    try {
+      await createOne(this.dietPlanModel, dietPlanDto);
+      return 'Successfully created diet plan';
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException(
+          'Status Failed!! Error while creating diet plan',
+        );
+      }
+    }
   }
 
   async deleteDietPlan(id: any): Promise<string> {
@@ -60,5 +68,12 @@ export class DietPlanService {
         );
       }
     }
+  }
+
+  async updateDietPlan(
+    id: mongoose.Types.ObjectId,
+    updateData: any,
+  ): Promise<DietPlan> {
+    return await updateOne(this.dietPlanModel, id, updateData);
   }
 }
