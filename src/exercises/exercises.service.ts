@@ -17,9 +17,12 @@ export class ExercisesService {
     @InjectModel(Exercise.name) private exerciseModel: mongoose.Model<Exercise>,
   ) {}
 
-  async getAllExercises(): Promise<Exercise[]> {
-    const user = await this.exerciseModel.find();
-    return user;
+  async getAllExercises(limit?: number): Promise<Exercise[]> {
+    let query = this.exerciseModel.find();
+    if (limit) {
+      query = query.limit(limit);
+    }
+    return query.exec();
   }
 
   async getFilteredExercise(queryParams: any): Promise<Exercise[]> {

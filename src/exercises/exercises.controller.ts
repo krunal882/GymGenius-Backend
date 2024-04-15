@@ -6,23 +6,23 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { ExercisesService } from './exercises.service';
 import { exerciseDto } from './dto/exercise.dto';
 import mongoose from 'mongoose';
 import { updateExercise } from './dto/exercise-update.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+// import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('exercises')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class ExercisesController {
   constructor(private readonly exerciseService: ExercisesService) {}
 
   @Get('/')
-  async getAllExercises() {
-    const user = await this.exerciseService.getAllExercises();
-    return user;
+  async getAllExercises(@Query('limit') limit: number) {
+    const exercises = await this.exerciseService.getAllExercises(limit);
+    return exercises;
   }
 
   @Get('/filtered')
@@ -39,7 +39,7 @@ export class ExercisesController {
       force,
       level,
       equipment,
-      muscle,
+      primaryMuscles: muscle,
       category,
       mechanic,
       name,
