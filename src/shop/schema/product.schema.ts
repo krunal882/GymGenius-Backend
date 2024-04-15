@@ -3,6 +3,9 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Product extends Document {
+  @Prop({ required: [true, 'please provide category of the product'] })
+  category: string;
+
   @Prop({ required: [true, 'please provide valid source image'] })
   src: string;
 
@@ -23,6 +26,9 @@ export class Product extends Document {
 
   @Prop({ required: [false] })
   tag: string;
+
+  @Prop({ required: [false] })
+  state: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
