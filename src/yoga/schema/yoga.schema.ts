@@ -1,24 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { YogaCategory } from 'src/utils/role.enum';
 
 @Schema()
 export class YogaPose extends Document {
   @Prop({
     required: [true, 'Please provide category of yoga'],
-    enum: [
-      'Core Yoga',
-      'Seated Yoga',
-      'Strengthening Yoga',
-      'Chest Opening Yoga',
-      'Backbend Yoga',
-      'Forward Bend Yoga',
-      'Hip Opening Yoga',
-      'Standing Yoga',
-      'Restorative Yoga',
-      'Arm Balance Yoga',
-      'Balancing Yoga',
-      'Inversion Yoga',
-    ],
+    enum: [YogaCategory],
   })
   category_name: string;
 
