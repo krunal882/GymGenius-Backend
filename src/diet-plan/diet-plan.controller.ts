@@ -11,10 +11,10 @@ import { DietPlanService } from './diet-plan.service';
 import mongoose from 'mongoose';
 import { dietPlanDto } from './dto/diet-plan.dto';
 import { updateDiet } from './dto/diet-update.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { UseGuards } from '@nestjs/common';
+// import { AuthGuard } from 'src/auth/auth.guard';
+// import { UseGuards } from '@nestjs/common';
 @Controller('diet-plans')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class DietPlanController {
   constructor(private readonly dietPlanService: DietPlanService) {}
 
@@ -26,7 +26,7 @@ export class DietPlanController {
 
   @Get('/filter')
   async getFilteredPlan(
-    @Query('diet_type') dietType: string,
+    @Query('category') dietType: string,
     @Query('purpose') purpose: string,
   ) {
     const queryParams = {
