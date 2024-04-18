@@ -57,6 +57,10 @@ export class ShopService {
       product.sort(
         (a: any, b: any) => parseInt(a.price.trim()) - parseInt(b.price.trim()),
       );
+    } else if (queryParams['sortByOff'] !== undefined) {
+      product.sort(
+        (a: any, b: any) => parseInt(b.off.trim()) - parseInt(a.off.trim()),
+      );
     }
 
     return product;
