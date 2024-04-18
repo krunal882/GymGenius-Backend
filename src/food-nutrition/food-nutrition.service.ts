@@ -18,14 +18,17 @@ export class FoodNutritionService {
     private foodModel: mongoose.Model<FoodNutrition>,
   ) {}
 
-  async getAllFood(): Promise<FoodNutrition[]> {
-    const food = await this.foodModel.find();
-    return food;
+  async getAllFood(limit?: number): Promise<FoodNutrition[]> {
+    let food = this.foodModel.find();
+    if (limit) {
+      food = food.limit(limit);
+    }
+    return food.exec();
   }
   async getFilteredFood(queryParams: any): Promise<FoodNutrition[]> {
     const filter: any = {};
 
-    const filterableKeys = ['category', 'name'];
+    const filterableKeys = ['category', 'name', 'calories', 'protein'];
 
     filterableKeys.forEach((key) => {
       if (queryParams[key]) {
@@ -33,6 +36,37 @@ export class FoodNutritionService {
       }
     });
 
+    if (queryParams.calories_min || queryParams.calories_max) {
+      const minCalories = queryParams.calories_min;
+      const maxCalories = queryParams.calories_max;
+
+      if (minCalories && maxCalories) {
+        filter['nutritions.calories'] = {
+          $gte: minCalories,
+          $lte: maxCalories,
+        };
+      } else if (minCalories) {
+        filter['nutritions.calories'] = { $gte: minCalories };
+      } else if (maxCalories) {
+        filter['nutritions.calories'] = { $lte: maxCalories };
+      }
+    }
+
+    if (queryParams.protein_min || queryParams.protein_max) {
+      const minProtein = queryParams.protein_min;
+      const maxProtein = queryParams.protein_max;
+
+      if (minProtein && maxProtein) {
+        filter['nutritions.protein'] = {
+          $gte: minProtein,
+          $lte: maxProtein,
+        };
+      } else if (maxProtein) {
+        filter['nutritions.protein'] = { $gte: maxProtein };
+      } else if (minProtein) {
+        filter['nutritions.protein'] = { $lte: minProtein };
+      }
+    }
     const Food = await this.foodModel.find(filter);
     return Food;
   }

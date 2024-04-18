@@ -3,35 +3,45 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Patch,
   Post,
   Query,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { FoodNutritionService } from './food-nutrition.service';
 import { foodNutritionDto } from './dto/food-nutrition.dto';
 import mongoose from 'mongoose';
 import { updateFoodDto } from './dto/food-update.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+// import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('foodNutrition')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class FoodNutritionController {
   constructor(private readonly foodNutritionService: FoodNutritionService) {}
 
   @Get('/')
-  async getAllFood() {
-    const user = await this.foodNutritionService.getAllFood();
-    return user;
+  async getAllFood(@Query('limit') limit: number) {
+    const foodItem = await this.foodNutritionService.getAllFood(limit);
+    return foodItem;
   }
   //food (category) = Dairy , Fruit , Grain , Vegetable
   @Get('/filtered')
   async getFilteredFood(
-    @Param('category') category: string,
-    @Param('name') name: string,
+    @Query('category') category: string,
+    @Query('name') name: string,
+    @Query('calories_min') calories_min: number,
+    @Query('calories_max') calories_max: number,
+    @Query('protein_min') protein_min: number,
+    @Query('protein_max') protein_max: number,
   ) {
-    const queryParams = { category, name };
+    const queryParams = {
+      category,
+      name,
+      calories_min,
+      calories_max,
+      protein_max,
+      protein_min,
+    };
 
     return await this.foodNutritionService.getFilteredFood(queryParams);
   }
