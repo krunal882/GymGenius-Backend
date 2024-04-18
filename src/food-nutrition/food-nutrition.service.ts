@@ -35,38 +35,32 @@ export class FoodNutritionService {
         filter[key] = queryParams[key];
       }
     });
-
-    if (queryParams.calories_min || queryParams.calories_max) {
-      const minCalories = queryParams.calories_min;
-      const maxCalories = queryParams.calories_max;
-
-      if (minCalories && maxCalories) {
-        filter['nutritions.calories'] = {
-          $gte: minCalories,
-          $lte: maxCalories,
-        };
-      } else if (minCalories) {
-        filter['nutritions.calories'] = { $gte: minCalories };
-      } else if (maxCalories) {
-        filter['nutritions.calories'] = { $lte: maxCalories };
+    if (
+      queryParams.calories_min !== undefined ||
+      queryParams.calories_max !== undefined
+    ) {
+      filter['nutritions.calories'] = {};
+      if (queryParams.calories_min !== undefined) {
+        filter['nutritions.calories'].$gte = queryParams.calories_min;
+      }
+      if (queryParams.calories_max !== undefined) {
+        filter['nutritions.calories'].$lte = queryParams.calories_max;
       }
     }
 
-    if (queryParams.protein_min || queryParams.protein_max) {
-      const minProtein = queryParams.protein_min;
-      const maxProtein = queryParams.protein_max;
-
-      if (minProtein && maxProtein) {
-        filter['nutritions.protein'] = {
-          $gte: minProtein,
-          $lte: maxProtein,
-        };
-      } else if (maxProtein) {
-        filter['nutritions.protein'] = { $gte: maxProtein };
-      } else if (minProtein) {
-        filter['nutritions.protein'] = { $lte: minProtein };
+    if (
+      queryParams.protein_min !== undefined ||
+      queryParams.protein_max !== undefined
+    ) {
+      filter['nutritions.protein'] = {};
+      if (queryParams.protein_min !== undefined) {
+        filter['nutritions.protein'].$gte = queryParams.protein_min;
+      }
+      if (queryParams.protein_max !== undefined) {
+        filter['nutritions.protein'].$lte = queryParams.protein_max;
       }
     }
+
     const Food = await this.foodModel.find(filter);
     return Food;
   }

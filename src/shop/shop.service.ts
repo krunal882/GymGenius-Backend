@@ -37,34 +37,26 @@ export class ShopService {
   async getFilteredProduct(queryParams: any): Promise<Product[]> {
     const filter: any = {};
 
-    const filterableKeys = [
-      'title',
-      'category',
-      'sortPriceLtoH',
-      'sortPriceHtoL',
-      'sortByOff',
-    ];
-
-    filterableKeys.forEach((key) => {
-      if (queryParams[key]) {
-        filter[key] = queryParams[key];
-      }
-    });
-
-    const product = await this.productModel.find({ filter, state: 'active' });
-
-    if (Object.keys(queryParams).includes('sortPriceLtoH')) {
-      product.sort(
-        (a: any, b: any) => parseInt(a.price.trim()) - parseInt(b.price.trim()),
-      ); // Sort in ascending order by price
-      return product;
+    if (queryParams.title) {
+      filter.title = queryParams.title;
+    }
+    if (queryParams.category) {
+      filter.category = queryParams.category;
     }
 
-    if (Object.keys(queryParams).includes('sortPriceHtoL')) {
+    const product = await this.productModel.find({
+      ...filter,
+      state: 'active',
+    });
+
+    if (queryParams['HighToLow'] !== undefined) {
       product.sort(
         (a: any, b: any) => parseInt(b.price.trim()) - parseInt(a.price.trim()),
-      ); // Sort in ascending order by price
-      return product;
+      );
+    } else if (queryParams['LowToHigh'] !== undefined) {
+      product.sort(
+        (a: any, b: any) => parseInt(a.price.trim()) - parseInt(b.price.trim()),
+      );
     }
 
     return product;

@@ -6,16 +6,16 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { ProductDto } from './dto/product.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+// import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('store')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
@@ -28,15 +28,15 @@ export class ShopController {
   async getFilteredProduct(
     @Query('title') title: string,
     @Query('category') category: string,
-    @Query('sortPriceLtoH') sortPriceLtoH: string,
-    @Query('sortPriceHtoL') sortPriceHtoL: string,
+    @Query('LowToHigh') LowToHigh: string,
+    @Query('HighToLow') HighToLow: string,
     @Query('sortByOff') sortByOff: string,
   ) {
     const queryParams = {
       title,
       category,
-      sortPriceLtoH,
-      sortPriceHtoL,
+      LowToHigh,
+      HighToLow,
       sortByOff,
     };
     return await this.shopService.getFilteredProduct(queryParams);
