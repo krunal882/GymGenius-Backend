@@ -17,7 +17,7 @@ export class ShopService {
     @InjectModel(Product.name) private productModel: mongoose.Model<Product>,
   ) {}
 
-  async getShowcaseProduct(): Promise<Product[]> {
+  async getShowcaseProduct(limit?: number): Promise<Product[]> {
     // Fetch all distinct categories available in products
     const categories = await this.productModel.distinct('category');
 
@@ -25,9 +25,22 @@ export class ShopService {
 
     // Iterate over each category
     for (const category of categories) {
-      const products = await this.productModel
-        .find({ category, state: 'active' })
-        .limit(12);
+      let products;
+      if (limit) {
+        // Fetch products with the specified limit
+        products = await this.productModel
+          .find({
+            category,
+            state: 'active',
+          })
+          .limit(limit);
+      } else {
+        // Fetch all products for the category
+        products = await this.productModel.find({
+          category,
+          state: 'active',
+        });
+      }
       showcaseProducts.push(...products);
     }
 
@@ -44,19 +57,27 @@ export class ShopService {
       filter.category = queryParams.category;
     }
 
+    if (
+      queryParams.minPrice !== undefined ||
+      queryParams.maxPrice !== undefined
+    ) {
+      filter['price'] = {};
+      if (queryParams.minPrice !== undefined) {
+        filter['price'].$gte = queryParams.minPrice;
+      }
+      if (queryParams.maxPrice !== undefined) {
+        filter['price'].$lte = queryParams.maxPrice;
+      }
+    }
     const product = await this.productModel.find({
       ...filter,
       state: 'active',
     });
 
     if (queryParams['HighToLow'] !== undefined) {
-      product.sort(
-        (a: any, b: any) => parseInt(b.price.trim()) - parseInt(a.price.trim()),
-      );
+      product.sort((a: any, b: any) => parseInt(b.price) - parseInt(a.price));
     } else if (queryParams['LowToHigh'] !== undefined) {
-      product.sort(
-        (a: any, b: any) => parseInt(a.price.trim()) - parseInt(b.price.trim()),
-      );
+      product.sort((a: any, b: any) => parseInt(a.price) - parseInt(b.price));
     } else if (queryParams['sortByOff'] !== undefined) {
       product.sort(
         (a: any, b: any) => parseInt(b.off.trim()) - parseInt(a.off.trim()),

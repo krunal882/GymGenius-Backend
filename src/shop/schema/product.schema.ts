@@ -16,7 +16,7 @@ export class Product extends Document {
   title: string;
 
   @Prop({ required: [true, 'please provide valid price of product'] })
-  price: string;
+  price: number;
 
   @Prop({ required: [false] })
   original_price: string;

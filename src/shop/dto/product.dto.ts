@@ -19,7 +19,7 @@ export class ProductDto {
 
   @IsNotEmpty({ message: 'please provide price of product ' })
   @IsString({ message: 'product price must be a string' })
-  price: string;
+  price: number;
 
   @IsOptional()
   @IsString({ message: 'original price must be a string' })

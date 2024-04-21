@@ -20,8 +20,8 @@ export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @Get('/')
-  async getShowcaseProduct() {
-    return await this.shopService.getShowcaseProduct();
+  async getShowcaseProduct(@Query('limit') limit?: number) {
+    return await this.shopService.getShowcaseProduct(limit);
   }
 
   @Get('/filtered')
@@ -31,6 +31,8 @@ export class ShopController {
     @Query('LowToHigh') LowToHigh: string,
     @Query('HighToLow') HighToLow: string,
     @Query('sortByOff') sortByOff: string,
+    @Query('maxPrice') maxPrice: number,
+    @Query('minPrice') minPrice: number,
   ) {
     const queryParams = {
       title,
@@ -38,6 +40,8 @@ export class ShopController {
       LowToHigh,
       HighToLow,
       sortByOff,
+      maxPrice,
+      minPrice,
     };
     return await this.shopService.getFilteredProduct(queryParams);
   }
