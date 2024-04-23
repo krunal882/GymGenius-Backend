@@ -57,6 +57,10 @@ export class ShopService {
       filter.category = queryParams.category;
     }
 
+    if (queryParams.id) {
+      filter._id = queryParams.id;
+    }
+
     if (
       queryParams.minPrice !== undefined ||
       queryParams.maxPrice !== undefined
