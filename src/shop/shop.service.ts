@@ -6,16 +6,28 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schema/product.schema';
+import { History } from './schema/cart.schema';
 import mongoose from 'mongoose';
 import { ProductDto } from './dto/product.dto';
+import { cartDto } from './dto/cart.dto';
+import Stripe from 'stripe';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
-
+import { User } from 'src/auth/schema/user.schema';
 @Injectable()
 export class ShopService {
+  private stripe;
   constructor(
-    @InjectModel(Product.name) private productModel: mongoose.Model<Product>,
-  ) {}
+    @InjectModel('Product') private productModel: mongoose.Model<Product>,
+    @InjectModel('History') private historyModel: mongoose.Model<History>,
+  ) {
+    this.stripe = new Stripe(
+      'sk_test_51Os07pSDcQHlNOyRkUjAGezWu07HqKIcKkrgWlBqiLvr7b1d1WjYV81nbS9Mnc43GBmtWFe9W13Om1qfWr1CxpYp00qUTDJ0bi',
+      {
+        apiVersion: '2020-08-27',
+      },
+    );
+  }
 
   async getShowcaseProduct(limit?: number): Promise<Product[]> {
     // Fetch all distinct categories available in products
@@ -45,6 +57,10 @@ export class ShopService {
     }
 
     return showcaseProducts;
+  }
+
+  async getCartProduct(productId: string): Promise<Product[]> {
+    return await this.productModel.findById({ _id: productId });
   }
 
   async getFilteredProduct(queryParams: any): Promise<Product[]> {
@@ -99,6 +115,15 @@ export class ShopService {
       throw new BadRequestException('Error while adding product');
     }
   }
+
+  async addCartProduct(cartDto: cartDto): Promise<string> {
+    try {
+      await createOne(this.historyModel, cartDto);
+      return 'Successfully added product to cart';
+    } catch (error) {
+      throw new BadRequestException('Error while adding product');
+    }
+  }
   async removeProduct(id: any): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
@@ -123,5 +148,35 @@ export class ShopService {
     updateData: updateProductDto,
   ): Promise<Product> {
     return await updateOne(this.productModel, id, updateData);
+  }
+
+  async productPurchase(user: User, productDto: ProductDto) {
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      success_url: `http://localhost:8081/store/equipments`,
+      cancel_url: `http://localhost:8081/store/equipments`,
+      customer_email: 'krunalvekariya254@gmail.com',
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'inr',
+            product_data: {
+              name: productDto.title,
+              description: `you are purchasing the  product`,
+              metadata: {
+                category: productDto.category, // Include product category
+                brand: productDto.brand, // Include product brand
+                // You can include more metadata properties as needed
+              },
+            },
+            unit_amount: productDto.price,
+          },
+          quantity: 1,
+        },
+      ],
+    });
+    console.log(session);
+    return session;
   }
 }

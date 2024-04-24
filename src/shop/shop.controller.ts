@@ -10,8 +10,10 @@ import {
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { ProductDto } from './dto/product.dto';
+import { cartDto } from './dto/cart.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
+import { User } from 'src/auth/schema/user.schema';
 // import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('store')
@@ -48,11 +50,23 @@ export class ShopController {
     return await this.shopService.getFilteredProduct(queryParams);
   }
 
+  @Get('/cart')
+  async getCartProduct(@Query('productId') productId: string) {
+    return await this.shopService.getCartProduct(productId);
+  }
+
   @Post('/addProduct')
   async addProduct(@Body() productDto: ProductDto): Promise<string> {
     await this.shopService.addProduct(productDto);
     return 'product added successfully';
   }
+
+  @Post('/addToCart')
+  async addCartProduct(@Body() cartDto: cartDto): Promise<string> {
+    await this.shopService.addCartProduct(cartDto);
+    return 'product added to cart successfully';
+  }
+
   @Delete('/removeProduct')
   async removeProduct(@Query('id') id: string): Promise<string> {
     this.shopService.removeProduct(id);
@@ -66,5 +80,13 @@ export class ShopController {
   ): Promise<string> {
     await this.shopService.updateProduct(id, updateData);
     return 'product detail updated successfully';
+  }
+  @Patch('/purchase')
+  async purchaseProduct(@Body() productDto: ProductDto, user: User) {
+    const purchaseMessage = await this.shopService.productPurchase(
+      user,
+      productDto,
+    );
+    return { message: purchaseMessage };
   }
 }

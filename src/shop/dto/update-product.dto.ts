@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class updateProductDto {
   @IsOptional()
@@ -23,7 +29,7 @@ export class updateProductDto {
 
   @IsOptional()
   @IsNotEmpty({ message: 'please provide price of product ' })
-  @IsString({ message: 'product price must be a string' })
+  @IsNumber({}, { message: 'product price must be a number' })
   price: number;
 
   @IsOptional()
