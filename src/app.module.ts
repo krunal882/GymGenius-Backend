@@ -10,9 +10,12 @@ import { ShopModule } from './shop/shop.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { MailerModule } from './mailer/mailer.module';
+// import { BookmarkModule } from './bookmark/bookmark.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     MongooseModule.forRoot('mongodb://localhost/FitFlex'),
 
     JwtModule.register({
@@ -30,6 +33,8 @@ import { ConfigModule } from '@nestjs/config';
     FoodNutritionModule,
     ShopModule,
     AuthModule,
+    MailerModule,
+    // BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService],

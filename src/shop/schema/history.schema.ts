@@ -3,8 +3,15 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class History extends Document {
+  @Prop({ required: [true, 'please provide id of the user'] })
+  userId: string;
+
   @Prop({ required: [true, 'please provide id of the product'] })
-  productId: string;
+  product: {
+    productId: string;
+    status: string;
+    quantity: number;
+  }[];
 }
 
 export const CartSchema = SchemaFactory.createForClass(History);

@@ -16,13 +16,13 @@ export class User extends Document {
   @Prop()
   role: string;
 
-  @Prop({ required: [true, 'please provide valid password'] })
+  @Prop()
   password: string;
 
   @Prop()
   state: string = 'active';
 
-  @Prop({ required: [true, 'please provide valid password'] })
+  @Prop()
   confirmPassword: string;
 
   @Prop()

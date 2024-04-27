@@ -51,8 +51,13 @@ export class ShopController {
   }
 
   @Get('/cart')
-  async getCartProduct(@Query('productId') productId: string) {
-    return await this.shopService.getCartProduct(productId);
+  async getCartProduct(@Body() userId: object) {
+    return await this.shopService.getCartProduct(userId);
+  }
+
+  @Get('/history')
+  async getPurchaseHistory(@Body() cartDto: cartDto) {
+    return await this.shopService.getPurchaseHistory(cartDto);
   }
 
   @Post('/addProduct')

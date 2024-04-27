@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schema/product.schema';
-import { History } from './schema/cart.schema';
+import { History } from './schema/history.schema';
 import mongoose from 'mongoose';
 import { ProductDto } from './dto/product.dto';
 import { cartDto } from './dto/cart.dto';
@@ -59,8 +59,19 @@ export class ShopService {
     return showcaseProducts;
   }
 
-  async getCartProduct(productId: string): Promise<Product[]> {
-    return await this.productModel.findById({ _id: productId });
+  async getCartProduct(userId: object): Promise<Product[]> {
+    console.log(userId);
+    return await this.historyModel.find({
+      userId,
+      status: 'pending',
+    });
+  }
+
+  async getPurchaseHistory(cartDto: cartDto): Promise<Product[]> {
+    return await this.productModel.find({
+      _id: cartDto.userId,
+      status: 'done',
+    });
   }
 
   async getFilteredProduct(queryParams: any): Promise<Product[]> {
@@ -118,7 +129,26 @@ export class ShopService {
 
   async addCartProduct(cartDto: cartDto): Promise<string> {
     try {
-      await createOne(this.historyModel, cartDto);
+      const existingCart = await this.historyModel.findOne({
+        userId: cartDto.userId,
+      });
+
+      if (existingCart) {
+        // If the cart exists, update it by adding the product ID
+        existingCart.product.push(...cartDto.product);
+        await existingCart.save();
+      } else {
+        // If the cart doesn't exist, create a new one
+        await createOne(this.historyModel, {
+          userId: cartDto.userId,
+          productId: [], // Initialize productId as an array with the new product ID
+        });
+        const newCart = await this.historyModel.findOne({
+          userId: cartDto.userId,
+        });
+        newCart.product.push(...cartDto.product);
+        await newCart.save();
+      }
       return 'Successfully added product to cart';
     } catch (error) {
       throw new BadRequestException('Error while adding product');
@@ -170,7 +200,7 @@ export class ShopService {
                 // You can include more metadata properties as needed
               },
             },
-            unit_amount: productDto.price,
+            unit_amount: productDto.price * 100,
           },
           quantity: 1,
         },
