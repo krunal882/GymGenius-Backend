@@ -13,7 +13,6 @@ import { cartDto } from './dto/cart.dto';
 import Stripe from 'stripe';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
-import { User } from 'src/auth/schema/user.schema';
 @Injectable()
 export class ShopService {
   private stripe;
@@ -59,15 +58,19 @@ export class ShopService {
     return showcaseProducts;
   }
 
-  async getCartProduct(userId: object): Promise<Product[]> {
-    console.log(userId);
-    return await this.historyModel.find({
+  async getCartProduct(userId: string): Promise<History[]> {
+    const cartProduct = await this.historyModel.find({
       userId,
-      status: 'pending',
     });
+
+    if (!cartProduct || cartProduct.length === 0) {
+      return;
+    }
+
+    return cartProduct;
   }
 
-  async getPurchaseHistory(cartDto: cartDto): Promise<Product[]> {
+  async getPurchaseHistory(cartDto: cartDto): Promise<History[]> {
     return await this.productModel.find({
       _id: cartDto.userId,
       status: 'done',
@@ -132,7 +135,6 @@ export class ShopService {
       const existingCart = await this.historyModel.findOne({
         userId: cartDto.userId,
       });
-
       if (existingCart) {
         // If the cart exists, update it by adding the product ID
         existingCart.product.push(...cartDto.product);
@@ -154,6 +156,54 @@ export class ShopService {
       throw new BadRequestException('Error while adding product');
     }
   }
+
+  async removeCart(userId: string, productId: string): Promise<string> {
+    try {
+      const products = await this.historyModel.findOne({ userId });
+      const productIndex = products.product.findIndex(
+        (product) => product.productId === productId,
+      );
+
+      if (productIndex === -1) {
+        throw new NotFoundException('Product not found in cart');
+      }
+
+      products.product.splice(productIndex, 1);
+
+      await products.save();
+
+      return 'Successfully removed product from cart';
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new BadRequestException('Error while removing product from cart');
+      }
+    }
+  }
+  async updateCart(userId: string, productId: string): Promise<string> {
+    try {
+      const filter = { userId, 'product.productId': productId };
+      const update = { $set: { 'product.$.status': 'done' } };
+
+      const result = await this.historyModel.updateOne(filter, update);
+
+      if (result.matchedCount === 0) {
+        throw new NotFoundException('Product not found in cart');
+      }
+
+      return 'Successfully updated product status in cart';
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new BadRequestException(
+          'Error while updating product status in cart',
+        );
+      }
+    }
+  }
+
   async removeProduct(id: any): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
@@ -180,7 +230,7 @@ export class ShopService {
     return await updateOne(this.productModel, id, updateData);
   }
 
-  async productPurchase(user: User, productDto: ProductDto) {
+  async productPurchase(price: number, quantity: string, title: string) {
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       success_url: `http://localhost:8081/store/equipments`,
@@ -190,23 +240,23 @@ export class ShopService {
       line_items: [
         {
           price_data: {
-            currency: 'inr',
+            currency: 'aed',
             product_data: {
-              name: productDto.title,
+              name: title,
               description: `you are purchasing the  product`,
               metadata: {
-                category: productDto.category, // Include product category
-                brand: productDto.brand, // Include product brand
+                // category: category, // Include product category
                 // You can include more metadata properties as needed
+
+                totalQuantity: quantity,
               },
             },
-            unit_amount: productDto.price * 100,
+            unit_amount: price * 100,
           },
           quantity: 1,
         },
       ],
     });
-    console.log(session);
     return session;
   }
 }

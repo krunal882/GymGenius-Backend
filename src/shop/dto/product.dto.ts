@@ -15,7 +15,7 @@ export class ProductDto {
   @IsString({ message: 'image name must be a string' })
   src: string;
 
-  @IsNotEmpty({ message: 'please provide brand name of product ' })
+  @IsOptional()
   @IsString({ message: 'brand name must be a string' })
   brand: string;
 
@@ -45,4 +45,8 @@ export class ProductDto {
   })
   @IsString({ message: 'product tag must be a string' })
   state: string;
+
+  @IsOptional()
+  @IsString({ message: 'product quantity' })
+  quantity: string;
 }

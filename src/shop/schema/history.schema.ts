@@ -10,7 +10,6 @@ export class History extends Document {
   product: {
     productId: string;
     status: string;
-    quantity: number;
   }[];
 }
 

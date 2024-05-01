@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -51,7 +52,7 @@ export class ShopController {
   }
 
   @Get('/cart')
-  async getCartProduct(@Body() userId: object) {
+  async getCartProduct(@Query('userId') userId: string) {
     return await this.shopService.getCartProduct(userId);
   }
 
@@ -72,6 +73,28 @@ export class ShopController {
     return 'product added to cart successfully';
   }
 
+  @Delete('/removeCart')
+  async removeCart(
+    @Body() data: { userId: string; productId: string },
+  ): Promise<string> {
+    const { userId, productId } = data;
+    this.shopService.removeCart(userId, productId);
+    return 'product removed from cart successfully';
+  }
+  @Patch('/updateCart')
+  async updateCart(
+    @Body() data: { userId: string; productId: string },
+  ): Promise<string> {
+    try {
+      const { userId, productId } = data;
+      console.log(userId, productId);
+      await this.shopService.updateCart(userId, productId);
+      return 'Product status updated successfully';
+    } catch (error) {
+      throw new BadRequestException('Failed to update product status');
+    }
+  }
+
   @Delete('/removeProduct')
   async removeProduct(@Query('id') id: string): Promise<string> {
     this.shopService.removeProduct(id);
@@ -87,10 +110,15 @@ export class ShopController {
     return 'product detail updated successfully';
   }
   @Patch('/purchase')
-  async purchaseProduct(@Body() productDto: ProductDto, user: User) {
+  async purchaseProduct(
+    @Body() data: { price: number; quantity: string; title: string },
+  ) {
+    const { price, quantity, title } = data;
+
     const purchaseMessage = await this.shopService.productPurchase(
-      user,
-      productDto,
+      price,
+      quantity,
+      title,
     );
     return { message: purchaseMessage };
   }

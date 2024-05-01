@@ -25,6 +25,10 @@ export class CreateUserDto {
   @Min(12, { message: 'User must be at least 12 years old' })
   age: number;
 
+  @IsNotEmpty({ message: 'Please provide an number' })
+  @IsString({ message: 'number must be a string' })
+  number: string;
+
   @IsOptional()
   @IsString({ message: 'Role must be a string' })
   @IsEnum(Role, { message: 'Invalid role' })

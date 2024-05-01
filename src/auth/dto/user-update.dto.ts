@@ -27,9 +27,19 @@ export class updateUser {
 
   @IsOptional()
   @IsNotEmpty()
+  @IsNumber()
+  number: number;
+
+  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(Role)
   @IsString({ message: 'role must be a string' })
   role: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString({ message: 'user profile pic must be a string' })
+  image: string;
 
   @IsOptional()
   @IsString()

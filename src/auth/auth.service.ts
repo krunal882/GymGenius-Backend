@@ -15,6 +15,7 @@ import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { deleteOne, updateOne } from 'src/factoryFunction';
 import { updateUser } from './dto/user-update.dto';
+import * as path from 'path';
 
 @Injectable()
 export class AuthService {
@@ -23,17 +24,34 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signup(createUserDto: CreateUserDto): Promise<User> {
-    const { password, confirmPassword } = createUserDto;
+  async signup(createUserDto: CreateUserDto, res: Response): Promise<void> {
+    const { password, confirmPassword, email } = createUserDto;
+
+    const existingUser = await this.UserModel.findOne({ email });
+    if (existingUser) {
+      throw new BadRequestException('Email address is already in use');
+    }
 
     if (password.trim() !== confirmPassword.trim()) {
       throw new BadRequestException(
         'Password and confirm password do not match',
       );
     }
-    const user = this.UserModel.create(createUserDto);
+    const user = await this.UserModel.create(createUserDto);
 
-    return user;
+    const payload = { email: user.email, role: user.role, userId: user._id };
+
+    const token = await this.jwtService.signAsync(payload);
+
+    res.cookie('Authorization', `Bearer ${token}`, {
+      httpOnly: true,
+      // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+    });
+
+    res.json({
+      token,
+      user,
+    });
   }
 
   async login(loginUserDto: LoginUserDto, res: Response): Promise<void> {
@@ -52,10 +70,16 @@ export class AuthService {
 
     const token = await this.jwtService.signAsync(payload);
 
-    res.set('Authorization', `Bearer ${token}`);
+    // res.set('Authorization', `Bearer ${token}`);
+
+    res.cookie('Authorization', `Bearer ${token}`, {
+      httpOnly: true,
+      // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+    });
 
     res.json({
       token,
+      user,
     });
   }
 
@@ -67,7 +91,7 @@ export class AuthService {
   async getFilteredUser(queryParams: any): Promise<User[]> {
     const filter: any = {}; // Initialize an empty filter object
 
-    const filterableKeys = ['name', 'email', 'age', 'role', 'state'];
+    const filterableKeys = ['name', 'email', 'age', 'role', 'state', 'number'];
     // Check if each query parameter exists and add it to the filter if present
 
     filterableKeys.forEach((key) => {
@@ -90,16 +114,16 @@ export class AuthService {
     user.resetPasswordToken = await resetToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // Token expires in 1 hour
     user.save();
-    return resetToken;
 
-    // const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
-    // const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
+    const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
+    const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
 
-    // await sendEmail({
+    // await sendMail({
     //   to: user.email,
     //   subject: 'Password Reset',
     //   html: message,
     // });
+    return resetToken;
   }
 
   async resetPassword(
@@ -147,6 +171,20 @@ export class AuthService {
           'Status Failed!! Error while Delete operation',
         );
       }
+    }
+  }
+  async uploadFile(file: Express.Multer.File, res: Response): Promise<void> {
+    try {
+      // Logic for uploading file to destination
+      const destination = path.resolve(__dirname, '../../profilePic'); // Absolute path
+      const filePath = path.join(destination, file.filename);
+      // You may add further logic for validation, file processing, etc.
+
+      // Send the file as response
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      res.status(500).send('Error uploading image');
     }
   }
 

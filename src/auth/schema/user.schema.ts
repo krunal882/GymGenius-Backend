@@ -17,6 +17,12 @@ export class User extends Document {
   role: string;
 
   @Prop()
+  image: string;
+
+  @Prop()
+  number: number;
+
+  @Prop()
   password: string;
 
   @Prop()
