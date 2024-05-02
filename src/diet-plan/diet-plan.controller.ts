@@ -28,10 +28,12 @@ export class DietPlanController {
   async getFilteredPlan(
     @Query('category') dietType: string,
     @Query('purpose') purpose: string,
+    @Query('dietId') dietId: string,
   ) {
     const queryParams = {
       diet_type: dietType,
       purpose: purpose,
+      _id: dietId,
     };
     return await this.dietPlanService.getFilteredPlan(queryParams);
   }

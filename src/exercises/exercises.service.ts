@@ -36,6 +36,7 @@ export class ExercisesService {
       'category',
       'mechanic',
       'name',
+      '_id',
     ];
 
     filterableKeys.forEach((key) => {

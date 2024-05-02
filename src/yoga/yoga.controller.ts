@@ -29,10 +29,12 @@ export class YogaController {
   async getFilteredYoga(
     @Query('name') name: string,
     @Query('category') category_name: string,
+    @Query('yogaId') yogaId: string,
   ) {
     const queryParams = {
       name,
       category_name,
+      _id: yogaId,
     };
 
     return await this.yogaService.getFilteredYoga(queryParams);

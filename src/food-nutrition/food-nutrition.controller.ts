@@ -33,6 +33,7 @@ export class FoodNutritionController {
     @Query('calories_max') calories_max: number,
     @Query('protein_min') protein_min: number,
     @Query('protein_max') protein_max: number,
+    @Query('nutritionId') nutritionId: string,
   ) {
     const queryParams = {
       category,
@@ -41,6 +42,7 @@ export class FoodNutritionController {
       calories_max,
       protein_max,
       protein_min,
+      _id: nutritionId,
     };
 
     return await this.foodNutritionService.getFilteredFood(queryParams);

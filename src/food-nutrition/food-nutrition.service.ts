@@ -28,7 +28,7 @@ export class FoodNutritionService {
   async getFilteredFood(queryParams: any): Promise<FoodNutrition[]> {
     const filter: any = {};
 
-    const filterableKeys = ['category', 'name', 'calories', 'protein'];
+    const filterableKeys = ['category', 'name', 'calories', 'protein', '_id'];
 
     filterableKeys.forEach((key) => {
       if (queryParams[key]) {

@@ -34,6 +34,7 @@ export class ExercisesController {
     @Query('category') category: string,
     @Query('mechanic') mechanic: string,
     @Query('name') name: string,
+    @Query('exerciseId') exerciseId: string,
   ) {
     const queryParams = {
       force,
@@ -43,6 +44,7 @@ export class ExercisesController {
       category,
       mechanic,
       name,
+      _id: exerciseId,
     };
     return await this.exerciseService.getFilteredExercise(queryParams);
   }

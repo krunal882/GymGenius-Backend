@@ -40,6 +40,9 @@ export class YogaService {
       filter.category_name = queryParams.category_name;
     }
 
+    if (queryParams._id) {
+      filter._id = queryParams._id;
+    }
     const yogaPoses = await this.yogaModel.find(filter).exec();
     return yogaPoses;
   }

@@ -32,6 +32,9 @@ export class DietPlanService {
     if (queryParams.purpose) {
       filter.purpose = queryParams.purpose;
     }
+    if (queryParams._id) {
+      filter._id = queryParams._id;
+    }
 
     // Execute the query with the constructed filter
     return await this.dietPlanModel.find(filter);
