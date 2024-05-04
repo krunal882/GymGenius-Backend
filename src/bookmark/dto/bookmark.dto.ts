@@ -1,11 +1,16 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class bookmark {
-  @IsNotEmpty()
-  @IsString()
-  user: string;
+  @IsNotEmpty({ message: 'please provide userId' })
+  @IsString({ message: 'user id must be a string' })
+  userId: string;
 
-  @IsNotEmpty()
-  @IsString()
-  item: string;
+  item: {
+    exercise: string[];
+    yoga: string[];
+    diet: string[];
+    nutrition: string[];
+  };
+  itemId?: string;
+  itemType?: string;
 }
