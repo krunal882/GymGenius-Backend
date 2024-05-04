@@ -6,7 +6,7 @@ export class cartDto {
   userId: string;
 
   @IsNotEmpty({ message: 'please provide id of the product' })
-  @IsArray({ message: 'ProductId must be a string' })
+  @IsArray({ message: 'ProductId must be an array' })
   product: {
     productId: string;
     quantity: 1;

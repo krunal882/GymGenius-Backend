@@ -181,13 +181,22 @@ export class ShopService {
       }
     }
   }
-  async updateCart(userId: string, productId: string): Promise<string> {
+  async updateCart(userId: string, productId: string[]): Promise<string> {
     try {
-      const filter = { userId, 'product.productId': productId };
-      const update = { $set: { 'product.$.status': 'done' } };
+      const filter = { userId, 'product.productId': { $in: productId } };
+      const update = { $set: { 'product.$[elem].status': 'done' } };
 
-      const result = await this.historyModel.updateOne(filter, update);
-
+      const options = {
+        arrayFilters: [{ 'elem.productId': { $in: productId } }],
+      };
+      console.log(filter, update);
+      const result = await this.historyModel.updateMany(
+        filter,
+        update,
+        options,
+      );
+      console.log('hi');
+      console.log(result);
       if (result.matchedCount === 0) {
         throw new NotFoundException('Product not found in cart');
       }

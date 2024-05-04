@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { ProductDto } from './dto/product.dto';
-import { cartDto } from './dto/cart.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
-import { User } from 'src/auth/schema/user.schema';
+import { cartDto } from './dto/cart.dto';
+// import { User } from 'src/auth/schema/user.schema';
 // import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('store')
@@ -83,11 +83,10 @@ export class ShopController {
   }
   @Patch('/updateCart')
   async updateCart(
-    @Body() data: { userId: string; productId: string },
+    @Body() data: { userId: string; productId: string[] },
   ): Promise<string> {
     try {
       const { userId, productId } = data;
-      console.log(userId, productId);
       await this.shopService.updateCart(userId, productId);
       return 'Product status updated successfully';
     } catch (error) {
