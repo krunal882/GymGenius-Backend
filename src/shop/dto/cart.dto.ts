@@ -9,7 +9,6 @@ export class cartDto {
   @IsArray({ message: 'ProductId must be an array' })
   product: {
     productId: string;
-    quantity: 1;
     status: string;
   }[];
 }

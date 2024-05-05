@@ -72,7 +72,7 @@ export class ShopService {
 
   async getPurchaseHistory(cartDto: cartDto): Promise<History[]> {
     return await this.productModel.find({
-      _id: cartDto.userId,
+      userId: cartDto.userId,
       status: 'done',
     });
   }
@@ -165,7 +165,7 @@ export class ShopService {
       );
 
       if (productIndex === -1) {
-        throw new NotFoundException('Product not found in cart');
+        return 'product not found in cart';
       }
 
       products.product.splice(productIndex, 1);
@@ -183,22 +183,18 @@ export class ShopService {
   }
   async updateCart(userId: string, productId: string[]): Promise<string> {
     try {
-      const filter = { userId, 'product.productId': { $in: productId } };
-      const update = { $set: { 'product.$[elem].status': 'done' } };
+      // Iterate over each productId and update the status in the cart
+      for (const id of productId) {
+        const filter = { userId, 'product.productId': id };
+        const update = { $set: { 'product.$.status': 'done' } };
+        const result = await this.historyModel.updateOne(filter, update);
 
-      const options = {
-        arrayFilters: [{ 'elem.productId': { $in: productId } }],
-      };
-      console.log(filter, update);
-      const result = await this.historyModel.updateMany(
-        filter,
-        update,
-        options,
-      );
-      console.log('hi');
-      console.log(result);
-      if (result.matchedCount === 0) {
-        throw new NotFoundException('Product not found in cart');
+        // Check if any document was matched and updated
+        if (result.matchedCount === 0) {
+          throw new NotFoundException(
+            `Product with ID ${id} not found in cart`,
+          );
+        }
       }
 
       return 'Successfully updated product status in cart';
