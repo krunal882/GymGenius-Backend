@@ -86,7 +86,6 @@ export class ShopService {
     if (queryParams.category) {
       filter.category = queryParams.category;
     }
-
     if (queryParams.id) {
       filter._id = queryParams.id;
     }
@@ -103,6 +102,7 @@ export class ShopService {
         filter['price'].$lte = queryParams.maxPrice;
       }
     }
+
     const product = await this.productModel.find({
       ...filter,
       state: 'active',
@@ -119,6 +119,27 @@ export class ShopService {
     }
 
     return product;
+  }
+
+  async getAllOrders(): Promise<any> {
+    const products = await this.historyModel.find();
+    const pendingProducts: string[] = [];
+
+    products.forEach((order) => {
+      const pendingOrderProducts = order.product.filter(
+        (product) => product.status === 'pending',
+      );
+      pendingProducts.push(
+        ...pendingOrderProducts.map((product) => product.productId),
+      );
+    });
+
+    const promises = pendingProducts.map(async (prod) => {
+      return await this.getFilteredProduct({ id: prod });
+    });
+
+    const data = await Promise.all(promises);
+    return data;
   }
 
   async addProduct(productDto: ProductDto): Promise<string> {

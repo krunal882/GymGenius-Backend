@@ -61,6 +61,11 @@ export class ShopController {
     return await this.shopService.getPurchaseHistory(cartDto);
   }
 
+  @Get('/orders')
+  async getAllOrders() {
+    return await this.shopService.getAllOrders();
+  }
+
   @Post('/addProduct')
   async addProduct(@Body() productDto: ProductDto): Promise<string> {
     await this.shopService.addProduct(productDto);
@@ -101,7 +106,7 @@ export class ShopController {
   }
 
   @Patch('/updateProduct')
-  async updateDietPlan(
+  async updateProduct(
     @Query('id') id: mongoose.Types.ObjectId,
     @Body() updateData: updateProductDto,
   ): Promise<string> {
