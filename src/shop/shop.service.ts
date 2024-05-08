@@ -13,12 +13,14 @@ import { cartDto } from './dto/cart.dto';
 import Stripe from 'stripe';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
+import { AuthService } from './../auth/auth.service';
 @Injectable()
 export class ShopService {
   private stripe;
   constructor(
     @InjectModel('Product') private productModel: mongoose.Model<Product>,
     @InjectModel('History') private historyModel: mongoose.Model<History>,
+    private authService: AuthService,
   ) {
     this.stripe = new Stripe(
       'sk_test_51Os07pSDcQHlNOyRkUjAGezWu07HqKIcKkrgWlBqiLvr7b1d1WjYV81nbS9Mnc43GBmtWFe9W13Om1qfWr1CxpYp00qUTDJ0bi',
@@ -122,26 +124,47 @@ export class ShopService {
   }
 
   async getAllOrders(): Promise<any> {
-    const products = await this.historyModel.find();
-    const pendingProducts: string[] = [];
+    const orders = await this.historyModel.find(); // Fetch all orders
 
-    products.forEach((order) => {
-      const pendingOrderProducts = order.product.filter(
-        (product) => product.status === 'pending',
-      );
-      pendingProducts.push(
-        ...pendingOrderProducts.map((product) => product.productId),
-      );
+    const pendingProducts: { userId: string; productId: string }[] = [];
+
+    orders.forEach((order) => {
+      order.product.forEach((product) => {
+        if (product.status === 'done') {
+          pendingProducts.push({
+            userId: order.userId,
+            productId: product.productId,
+          });
+        }
+      });
     });
 
-    const promises = pendingProducts.map(async (prod) => {
-      return await this.getFilteredProduct({ id: prod });
+    const uniqueUserIds = Array.from(
+      new Set(pendingProducts.map((prod) => prod.userId)),
+    );
+    const promises = uniqueUserIds.map(async (userId) => {
+      const user = await this.authService.getFilteredUser({ _id: userId });
+
+      const userPendingProducts = pendingProducts.filter(
+        (prod) => prod.userId === userId,
+      );
+
+      const productPromises = userPendingProducts.map(async (prod) => {
+        const productInfo = await this.getFilteredProduct({
+          id: prod.productId,
+        });
+        return { userId, productInfo };
+      });
+
+      const productData = await Promise.all(productPromises);
+
+      return { user, productData };
     });
 
     const data = await Promise.all(promises);
+
     return data;
   }
-
   async addProduct(productDto: ProductDto): Promise<string> {
     try {
       await createOne(this.productModel, productDto);

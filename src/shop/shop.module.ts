@@ -5,11 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProductSchema } from './schema/product.schema';
 import { CartSchema } from './schema/History.schema';
 import { ShopService } from './shop.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ShopController],
   providers: [ShopService],
   imports: [
+    AuthModule,
     MongooseModule.forFeature([
       { name: 'Product', schema: ProductSchema },
       { name: 'History', schema: CartSchema },

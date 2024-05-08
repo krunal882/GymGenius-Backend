@@ -11,13 +11,14 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from './mailer/mailer.module';
-// import { BookmarkModule } from './bookmark/bookmark.module';
+import { BookmarkModule } from './bookmark/bookmark.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot('mongodb://localhost/FitFlex'),
-
+    MulterModule.register(),
     JwtModule.register({
       global: true,
       secret: 'okaysomthigngoorjofjdo',
@@ -34,7 +35,7 @@ import { MailerModule } from './mailer/mailer.module';
     ShopModule,
     AuthModule,
     MailerModule,
-    // BookmarkModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
