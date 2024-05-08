@@ -91,6 +91,11 @@ export class ShopService {
     if (queryParams.id) {
       filter._id = queryParams.id;
     }
+    if (queryParams.name) {
+      filter.title = {
+        $regex: new RegExp(queryParams.name, 'i'),
+      };
+    }
 
     if (
       queryParams.minPrice !== undefined ||

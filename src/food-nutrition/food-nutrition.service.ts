@@ -32,7 +32,11 @@ export class FoodNutritionService {
 
     filterableKeys.forEach((key) => {
       if (queryParams[key]) {
-        filter[key] = queryParams[key];
+        if (key === 'name') {
+          filter[key] = { $regex: new RegExp(queryParams[key], 'i') };
+        } else {
+          filter[key] = queryParams[key];
+        }
       }
     });
     if (

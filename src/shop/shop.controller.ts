@@ -37,6 +37,7 @@ export class ShopController {
     @Query('maxPrice') maxPrice: number,
     @Query('minPrice') minPrice: number,
     @Query('id') id: number,
+    @Query('name') name: string,
   ) {
     const queryParams = {
       title,
@@ -47,6 +48,7 @@ export class ShopController {
       maxPrice,
       minPrice,
       id,
+      name,
     };
     return await this.shopService.getFilteredProduct(queryParams);
   }

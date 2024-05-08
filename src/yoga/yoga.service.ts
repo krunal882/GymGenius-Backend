@@ -27,13 +27,12 @@ export class YogaService {
 
   async getFilteredYoga(queryParams: any): Promise<YogaPose[]> {
     const filter: any = {};
-
     if (queryParams.name) {
-      // Use $or operator to search in both sanskrit_name and english_name fields
       filter.$or = [
-        { sanskrit_name: { $regex: queryParams.name, $options: 'i' } },
+        { sanskrit_name_adapted: { $regex: queryParams.name, $options: 'i' } },
         { english_name: { $regex: queryParams.name, $options: 'i' } },
       ];
+      console.log(filter);
     }
 
     if (queryParams.category_name) {
