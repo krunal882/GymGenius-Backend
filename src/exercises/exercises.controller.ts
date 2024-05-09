@@ -63,10 +63,13 @@ export class ExercisesController {
 
   @Patch('/updateExercise')
   async updateDietPlan(
-    @Query('id') id: mongoose.Types.ObjectId,
+    @Query('id') _id: string,
     @Body() updateData: updateExercise,
   ): Promise<string> {
-    await this.exerciseService.updateExercise(id, updateData);
+    await this.exerciseService.updateExercise(
+      new mongoose.Types.ObjectId(_id),
+      updateData,
+    );
     return 'exercise updated successfully';
   }
 }

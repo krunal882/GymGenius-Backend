@@ -32,7 +32,6 @@ export class YogaService {
         { sanskrit_name_adapted: { $regex: queryParams.name, $options: 'i' } },
         { english_name: { $regex: queryParams.name, $options: 'i' } },
       ];
-      console.log(filter);
     }
 
     if (queryParams.category_name) {

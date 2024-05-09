@@ -81,9 +81,11 @@ export class ExercisesService {
   }
 
   async updateExercise(
-    id: mongoose.Types.ObjectId,
+    _id: mongoose.Types.ObjectId,
     updateData: updateExercise,
   ): Promise<Exercise> {
-    return await updateOne(this.exerciseModel, id, updateData);
+    console.log(updateData);
+    const data = await updateOne(this.exerciseModel, _id, updateData);
+    return data;
   }
 }

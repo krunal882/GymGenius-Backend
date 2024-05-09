@@ -23,9 +23,8 @@ export class DietPlanService {
   }
 
   async getFilteredPlan(queryParams: any): Promise<DietPlan[]> {
-    const filter: any = {}; // Initialize an empty filter object
+    const filter: any = {};
 
-    // Check if each query parameter exists and add it to the filter if present
     if (queryParams.diet_type) {
       filter.diet_type = queryParams.diet_type;
     }
@@ -35,8 +34,9 @@ export class DietPlanService {
     if (queryParams._id) {
       filter._id = queryParams._id;
     }
-
-    // Execute the query with the constructed filter
+    if (queryParams.plan_name) {
+      filter.plan_name = { $regex: new RegExp(queryParams.plan_name, 'i') };
+    }
     return await this.dietPlanModel.find(filter);
   }
 
