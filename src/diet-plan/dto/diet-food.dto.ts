@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class dietFoodDto {
   @IsNotEmpty({ message: 'please provide the food name' })
@@ -10,22 +10,22 @@ export class dietFoodDto {
   quantity: string;
 
   @IsNotEmpty({ message: 'please provide total days of diet plan' })
-  @IsNumber({}, { message: 'diet plan total days must be a number' })
-  calories: number;
+  @IsString({ message: 'food calories must be in string' })
+  calories: string;
 
   @IsNotEmpty({ message: 'please provide protein of diet plan' })
-  @IsNumber({}, { message: 'diet plan protein must be a number' })
-  protein: number;
+  @IsString({ message: 'food protein must be in string' })
+  protein: string;
 
   @IsNotEmpty({ message: 'please provide carbohydrates of diet plan' })
-  @IsNumber({}, { message: 'diet plan carbohydrates must be a number' })
-  carbohydrates: number;
+  @IsString({ message: 'food carbohydrates must be in string' })
+  carbohydrates: string;
 
   @IsNotEmpty({ message: 'please provide fat of diet plan' })
-  @IsNumber({}, { message: 'diet plan fat must be a number' })
-  fat: number;
+  @IsString({ message: 'food fat must be in string' })
+  fat: string;
 
   @IsNotEmpty({ message: 'please provide fiber of diet plan' })
-  @IsNumber({}, { message: 'diet plan fiber must be a number' })
-  fiber: number;
+  @IsString({ message: 'food fiber must be in string' })
+  fiber: string;
 }

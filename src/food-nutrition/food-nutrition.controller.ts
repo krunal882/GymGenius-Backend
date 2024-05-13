@@ -6,16 +6,16 @@ import {
   Patch,
   Post,
   Query,
-  // UseGuards,
+  UseGuards,
 } from '@nestjs/common';
 import { FoodNutritionService } from './food-nutrition.service';
 import { foodNutritionDto } from './dto/food-nutrition.dto';
 import mongoose from 'mongoose';
 import { updateFoodDto } from './dto/food-update.dto';
-// import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('foodNutrition')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class FoodNutritionController {
   constructor(private readonly foodNutritionService: FoodNutritionService) {}
 
@@ -24,7 +24,6 @@ export class FoodNutritionController {
     const foodItem = await this.foodNutritionService.getAllFood(limit);
     return foodItem;
   }
-  //food (category) = Dairy , Fruit , Grain , Vegetable
   @Get('/filtered')
   async getFilteredFood(
     @Query('category') category: string,
@@ -63,10 +62,13 @@ export class FoodNutritionController {
 
   @Patch('/updateFoodItem')
   async updateDietPlan(
-    @Query('id') id: mongoose.Types.ObjectId,
+    @Query('id') _id: string,
     @Body() updateData: updateFoodDto,
   ): Promise<string> {
-    await this.foodNutritionService.updateFoodItem(id, updateData);
+    await this.foodNutritionService.updateFoodItem(
+      new mongoose.Types.ObjectId(_id),
+      updateData,
+    );
     return 'foodItem detail updated successfully';
   }
 }

@@ -6,16 +6,16 @@ import {
   Patch,
   Post,
   Query,
-  // UseGuards,
+  UseGuards,
 } from '@nestjs/common';
 import { YogaService } from './yoga.service';
 import { YogaPoseDto } from './dto/yoga-pose.dto';
 import mongoose from 'mongoose';
 import { updateYogaPoseDto } from './dto/yoga-update.dto';
-// import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('yoga-poses')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class YogaController {
   constructor(private readonly yogaService: YogaService) {}
 

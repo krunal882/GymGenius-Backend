@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { bookmark } from './dto/bookmark.dto';
 import { BookmarkService } from './bookmark.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('bookmark')
+@UseGuards(AuthGuard)
 export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
 
@@ -10,9 +12,7 @@ export class BookmarkController {
   async addBookmark(@Body() bookmarkDto: bookmark) {
     try {
       return await this.bookmarkService.addBookmark(bookmarkDto);
-      // return 'Bookmarked successfully';
     } catch (error) {
-      // Handle error appropriately
       console.error('Error adding bookmark:', error);
       return 'Failed to bookmark';
     }
@@ -21,11 +21,9 @@ export class BookmarkController {
   @Post('/undoBookmark')
   async undoBookmark(@Body() bookmarkDto: bookmark) {
     try {
-      console.log(bookmarkDto);
       await this.bookmarkService.undoBookmark(bookmarkDto);
       return 'Bookmark undone successfully';
     } catch (error) {
-      // Handle error appropriately
       console.error('Error undoing bookmark:', error);
       return 'Failed to undo bookmark';
     }

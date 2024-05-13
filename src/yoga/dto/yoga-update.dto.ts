@@ -1,13 +1,8 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { YogaCategory } from 'src/utils/role.enum';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class updateYogaPoseDto {
   @IsNotEmpty({ message: 'please provide yoga-pose name' })
   @IsString({ message: ' yoga-pose name must be a string' })
-  @IsEnum(YogaCategory, {
-    message:
-      'yoga category must be one of: Core Yoga, Seated Yoga, Strengthening Yoga, Chest Opening Yoga, Backbend Yoga ,Forward Bend Yoga, Hip Opening Yoga, Standing Yoga, Restorative Yoga, Arm Balance Yoga, Balancing Yoga, Inversion Yoga',
-  })
   category_name: string;
 
   @IsNotEmpty({ message: 'please provide category description of yoga' })

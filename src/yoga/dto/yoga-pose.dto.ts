@@ -1,13 +1,8 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { YogaCategory } from 'src/utils/role.enum';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class YogaPoseDto {
   @IsNotEmpty({ message: 'please provide yoga-pose name' })
   @IsString({ message: ' yoga-pose name must be a string' })
-  @IsEnum(YogaCategory, {
-    message:
-      'yoga category must be one of: Core Yoga, Seated Yoga, Strengthening Yoga, Chest Opening Yoga, Backbend Yoga ,Forward Bend Yoga, Hip Opening Yoga, Standing Yoga, Restorative Yoga, Arm Balance Yoga, Balancing Yoga, Inversion Yoga',
-  })
   category_name: string;
 
   @IsNotEmpty({ message: 'please provide category description of yoga' })
@@ -37,9 +32,9 @@ export class YogaPoseDto {
   @IsString({ message: 'pose benefits must be a string' })
   pose_benefits: string;
 
-  @IsNotEmpty({
-    message: 'please provide png photo or source link of the yoga pose',
-  })
-  @IsString({ message: 'url must be a string' })
-  url_png: string;
+  // @IsNotEmpty({
+  //   message: 'please provide png photo or source link of the yoga pose',
+  // })
+  // @IsString({ message: 'url must be a string' })
+  // url_png: string;
 }

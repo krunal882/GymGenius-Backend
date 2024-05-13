@@ -25,10 +25,10 @@ export class MailerService {
     const transport = this.mailTransport();
 
     const options = {
-      from: 'GymGenius', // sender address
-      to: recipients, // list of receivers
-      subject: subject, // Subject line
-      html: html, // html body
+      from: 'GymGenius',
+      to: recipients,
+      subject: subject,
+      html: html,
     };
 
     try {
@@ -36,7 +36,7 @@ export class MailerService {
       return result;
     } catch (error) {
       console.log('Error sending mail:', error);
-      throw error; // Propagate the error to the caller
+      throw error;
     }
   }
 }

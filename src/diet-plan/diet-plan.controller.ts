@@ -6,15 +6,16 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { DietPlanService } from './diet-plan.service';
 import mongoose from 'mongoose';
 import { dietPlanDto } from './dto/diet-plan.dto';
 import { updateDiet } from './dto/diet-update.dto';
-// import { AuthGuard } from 'src/auth/auth.guard';
-// import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
+
 @Controller('diet-plans')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class DietPlanController {
   constructor(private readonly dietPlanService: DietPlanService) {}
 

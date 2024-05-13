@@ -14,25 +14,19 @@ export class BookmarkService {
   async addBookmark(bookmarkDto: bookmark): Promise<void> {
     const filter = { userId: bookmarkDto.userId };
     try {
-      // Check if the user exists
       const existingUser = await this.bookmarkModel.findOne(filter);
       if (existingUser) {
         const itemType = bookmarkDto.itemType as keyof typeof existingUser.item;
 
         const newItemId = bookmarkDto.itemId;
-        // Construct update operation based on itemType
         let updateOperation;
         if (existingUser.item[itemType]) {
-          // If itemType exists, push the new itemId
           updateOperation = { $addToSet: { [`item.${itemType}`]: newItemId } };
         } else {
-          // If itemType doesn't exist, create a new array with newItemId
           updateOperation = { $set: { [`item.${itemType}`]: [newItemId] } };
         }
-        // Update the document
         await this.bookmarkModel.updateOne(filter, updateOperation);
       } else {
-        // If the user doesn't exist, create a new one with the item
         const newItem = await createOne(this.bookmarkModel, {
           userId: bookmarkDto.userId,
           item: {

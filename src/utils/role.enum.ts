@@ -41,18 +41,3 @@ export enum ExerciseLevel {
   INTERMEDIATE = 'intermediate',
   EXPERT = 'expert',
 }
-
-export enum YogaCategory {
-  CORE_YOGA = 'Core Yoga',
-  SEATED_YOGA = 'Seated Yoga',
-  STRENGTHENING_YOGA = 'Strengthening Yoga',
-  CHEST_OPENING_YOGA = 'Chest Opening Yoga',
-  BACKBEND_YOGA = 'Backbend Yoga',
-  FORWARD_BEND_YOGA = 'Forward Bend Yoga',
-  HIP_OPENING_YOGA = 'Hip Opening Yoga',
-  STANDING_YOGA = 'Standing Yoga',
-  RESTORATIVE_YOGA = 'Restorative Yoga',
-  ARM_BALANCE_YOGA = 'Arm Balance Yoga',
-  BALANCING_YOGA = 'Balancing Yoga',
-  INVERSION_YOGA = 'Inversion Yoga',
-}

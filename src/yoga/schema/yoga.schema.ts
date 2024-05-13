@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { YogaCategory } from 'src/utils/role.enum';
 
 @Schema()
 export class YogaPose extends Document {
   @Prop({
     required: [true, 'Please provide category of yoga'],
-    enum: [YogaCategory],
   })
   category_name: string;
 

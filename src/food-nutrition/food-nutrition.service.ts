@@ -98,9 +98,10 @@ export class FoodNutritionService {
   }
 
   async updateFoodItem(
-    id: mongoose.Types.ObjectId,
+    _id: mongoose.Types.ObjectId,
     updateData: updateFoodDto,
   ): Promise<FoodNutrition> {
-    return await updateOne(this.foodModel, id, updateData);
+    const data = await updateOne(this.foodModel, _id, updateData);
+    return data;
   }
 }

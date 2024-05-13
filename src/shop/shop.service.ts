@@ -31,16 +31,13 @@ export class ShopService {
   }
 
   async getShowcaseProduct(limit?: number): Promise<Product[]> {
-    // Fetch all distinct categories available in products
     const categories = await this.productModel.distinct('category');
 
     const showcaseProducts: Product[] = [];
 
-    // Iterate over each category
     for (const category of categories) {
       let products;
       if (limit) {
-        // Fetch products with the specified limit
         products = await this.productModel
           .find({
             category,
@@ -48,7 +45,6 @@ export class ShopService {
           })
           .limit(limit);
       } else {
-        // Fetch all products for the category
         products = await this.productModel.find({
           category,
           state: 'active',
@@ -129,7 +125,7 @@ export class ShopService {
   }
 
   async getAllOrders(): Promise<any> {
-    const orders = await this.historyModel.find(); // Fetch all orders
+    const orders = await this.historyModel.find();
 
     const pendingProducts: { userId: string; productId: string }[] = [];
 
@@ -185,14 +181,12 @@ export class ShopService {
         userId: cartDto.userId,
       });
       if (existingCart) {
-        // If the cart exists, update it by adding the product ID
         existingCart.product.push(...cartDto.product);
         await existingCart.save();
       } else {
-        // If the cart doesn't exist, create a new one
         await createOne(this.historyModel, {
           userId: cartDto.userId,
-          productId: [], // Initialize productId as an array with the new product ID
+          productId: [],
         });
         const newCart = await this.historyModel.findOne({
           userId: cartDto.userId,
@@ -232,13 +226,11 @@ export class ShopService {
   }
   async updateCart(userId: string, productId: string[]): Promise<string> {
     try {
-      // Iterate over each productId and update the status in the cart
       for (const id of productId) {
         const filter = { userId, 'product.productId': id };
         const update = { $set: { 'product.$.status': 'done' } };
         const result = await this.historyModel.updateOne(filter, update);
 
-        // Check if any document was matched and updated
         if (result.matchedCount === 0) {
           throw new NotFoundException(
             `Product with ID ${id} not found in cart`,
@@ -299,9 +291,6 @@ export class ShopService {
               name: title,
               description: `you are purchasing the  product`,
               metadata: {
-                // category: category, // Include product category
-                // You can include more metadata properties as needed
-
                 totalQuantity: quantity,
               },
             },

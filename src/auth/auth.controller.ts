@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,7 +20,7 @@ import mongoose from 'mongoose';
 import { updateUser } from './dto/user-update.dto';
 import { AuthGuard } from './auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+// import { diskStorage } from 'multer';
 import * as path from 'path';
 
 interface FileParams {
@@ -66,10 +67,14 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('/users')
-  async getAllUser() {
-    return await this.authService.getAllUser();
+  async getAllUsers(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return await this.authService.getAllUsers(page, limit);
   }
 
+  @UseGuards(AuthGuard)
   @Get('/filtered')
   async getFilteredUser(
     @Query('name') name: string,
@@ -78,6 +83,7 @@ export class AuthController {
     @Query('number') number: number,
     @Query('role') role: string,
     @Query('state') state: string,
+    @Query('id') _id: mongoose.ObjectId,
   ) {
     const queryParams = {
       name,
@@ -86,39 +92,36 @@ export class AuthController {
       number,
       role,
       state,
+      _id,
     };
     return await this.authService.getFilteredUser(queryParams);
   }
 
+  @UseGuards(AuthGuard)
   @Post('/upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './profilePic',
-        filename: (req, file, cb) => {
-          cb(null, `${file.originalname}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   async uploadImg(
     @Res() res: Response,
     @UploadedFile() file: Express.Multer.File,
+    @Body('id') id: string,
   ) {
-    await this.authService.uploadFile(file, res);
+    await this.authService.uploadFile(file, id, res);
   }
 
+  @UseGuards(AuthGuard)
   @Get('/getImg')
   getFile(@Res() res: Response, @Body() file: FileParams) {
     res.sendFile(path.join(__dirname, '../../profilePic/' + file.fileName));
   }
 
+  @UseGuards(AuthGuard)
   @Delete('/deleteUser')
   async deleteUser(@Query('id') id: string): Promise<string> {
     this.authService.deleteUser(id);
     return 'exercise deleted successfully';
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/updateUser')
   async updateUser(
     @Query('id') id: mongoose.Types.ObjectId,

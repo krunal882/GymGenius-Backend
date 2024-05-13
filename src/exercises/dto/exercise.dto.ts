@@ -1,11 +1,4 @@
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ForceType, ExerciseLevel } from '../../utils/role.enum';
 import { Prop } from '@nestjs/mongoose';
 export class exerciseDto {
@@ -41,19 +34,14 @@ export class exerciseDto {
   category: string;
 
   @IsNotEmpty({ message: 'Please provide target primary muscle of exercise' })
-  @IsArray({ message: 'Primary muscles must be an array' })
-  @ArrayNotEmpty({ message: 'Primary muscles array cannot be empty' })
   @IsString({ each: true, message: 'Each primary muscle must be a string' })
   primaryMuscles: string[];
 
   @IsOptional()
-  @IsArray({ message: 'secondary muscles must be an array' })
   @IsString({ each: true, message: 'Each secondary muscle must be a string' })
   secondaryMuscles: string[];
 
   @IsNotEmpty({ message: 'Please provide instructions for the exercise' })
-  @IsArray({ message: 'Instructions must be an array' })
-  @ArrayNotEmpty({ message: 'Instructions array cannot be empty' })
   @IsString({ each: true, message: 'Each instruction must be a string' })
   instructions: string[];
 }

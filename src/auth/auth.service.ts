@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { deleteOne, updateOne } from 'src/factoryFunction';
 import { updateUser } from './dto/user-update.dto';
 import * as path from 'path';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,6 @@ export class AuthService {
 
   async signup(createUserDto: CreateUserDto, res: Response): Promise<void> {
     const { password, confirmPassword, email } = createUserDto;
-
     const existingUser = await this.UserModel.findOne({ email });
     if (existingUser) {
       throw new BadRequestException('Email address is already in use');
@@ -43,10 +43,10 @@ export class AuthService {
 
     const token = await this.jwtService.signAsync(payload);
 
-    res.cookie('Authorization', `Bearer ${token}`, {
-      httpOnly: true,
-      // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
-    });
+    // res.cookie('Authorization', ` ${token}`, {
+    //   httpOnly: true,
+    //   // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+    // });
 
     res.json({
       token,
@@ -72,34 +72,45 @@ export class AuthService {
 
     // res.set('Authorization', `Bearer ${token}`);
 
-    res.cookie('Authorization', `Bearer ${token}`, {
-      httpOnly: true,
-      // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
-    });
+    // res.cookie('Authorization', `Bearer ${token}`, {
+    //   httpOnly: true,
+    //   // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+    // });
 
     res.json({
       token,
-      user,
+      // user,
     });
   }
 
-  async getAllUser(): Promise<User[]> {
-    const users = await this.UserModel.find();
+  async getAllUsers(page: number, limit: number): Promise<User[]> {
+    const skip = (page - 1) * limit;
+    const users = await this.UserModel.find()
+      .select('_id name email age number role state')
+      .skip(skip)
+      .limit(limit)
+      .exec();
     return users;
   }
 
   async getFilteredUser(queryParams: any): Promise<User[]> {
-    const filter: any = {}; // Initialize an empty filter object
+    const filter: any = {};
 
-    const filterableKeys = ['name', 'email', 'age', 'role', 'state', 'number'];
-    // Check if each query parameter exists and add it to the filter if present
+    const filterableKeys = [
+      'name',
+      'email',
+      'age',
+      'role',
+      'state',
+      'number',
+      '_id',
+    ];
 
     filterableKeys.forEach((key) => {
       if (queryParams[key]) {
         filter[key] = queryParams[key];
       }
     });
-    // Execute the query with the constructed filter
     return await this.UserModel.find(filter);
   }
 
@@ -115,8 +126,8 @@ export class AuthService {
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // Token expires in 1 hour
     user.save();
 
-    const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
-    const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
+    // const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
+    // const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
 
     // await sendMail({
     //   to: user.email,
@@ -173,15 +184,26 @@ export class AuthService {
       }
     }
   }
-  async uploadFile(file: Express.Multer.File, res: Response): Promise<void> {
+  async uploadFile(
+    file: Express.Multer.File,
+    id: string,
+    res: Response,
+  ): Promise<void> {
     try {
-      // Logic for uploading file to destination
-      const destination = path.resolve(__dirname, '../../profilePic'); // Absolute path
-      const filePath = path.join(destination, file.filename);
-      // You may add further logic for validation, file processing, etc.
+      const destination = path.resolve(
+        __dirname,
+        `../../../../fontend-bootstrap/public/assets/profilePic/${file.originalname}`,
+      );
+      await sharp(file.buffer)
+        .resize(300, 300)
+        .toFormat('jpeg')
+        .toFile(destination);
 
-      // Send the file as response
-      res.sendFile(filePath);
+      await this.UserModel.updateOne(
+        { _id: id },
+        { profilePicture: file.originalname },
+      );
+      res.sendFile(destination);
     } catch (error) {
       console.error('Error uploading image:', error);
       res.status(500).send('Error uploading image');

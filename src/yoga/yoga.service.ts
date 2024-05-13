@@ -47,6 +47,7 @@ export class YogaService {
 
   async addYogaPose(yogaPoseDto: YogaPoseDto): Promise<string> {
     try {
+      console.log(yogaPoseDto);
       await createOne(this.yogaModel, yogaPoseDto);
       return 'Successfully added yoga-pose';
     } catch (error) {

@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { dietMeal } from './diet-meal.dto';
 
 export class dietPlanDto {
@@ -15,8 +15,8 @@ export class dietPlanDto {
   purpose: string;
 
   @IsNotEmpty({ message: 'please provide total days of diet plan' })
-  @IsNumber({}, { message: 'diet plan total days must be a number' })
-  total_days: number;
+  @IsString({ message: 'diet plan days must be a string' })
+  total_days: string;
 
   @IsNotEmpty({ message: 'please provide total meals of diet plan' })
   @IsArray({ message: 'meal should be an array' })

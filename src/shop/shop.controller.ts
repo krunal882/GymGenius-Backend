@@ -7,18 +7,17 @@ import {
   Patch,
   Post,
   Query,
-  // UseGuards,
+  UseGuards,
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { ProductDto } from './dto/product.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
 import { cartDto } from './dto/cart.dto';
-// import { User } from 'src/auth/schema/user.schema';
-// import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('store')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
