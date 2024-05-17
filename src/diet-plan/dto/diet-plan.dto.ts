@@ -21,4 +21,8 @@ export class dietPlanDto {
   @IsNotEmpty({ message: 'please provide total meals of diet plan' })
   @IsArray({ message: 'meal should be an array' })
   meals: dietMeal[];
+
+  // @IsNotEmpty({ message: 'please provide image name of diet plan' })
+  // @IsString({ message: 'diet plan image name must be a string' })
+  // src: string;
 }

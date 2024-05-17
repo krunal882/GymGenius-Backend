@@ -31,6 +31,9 @@ export class DietPlan extends Document {
       fiber: number;
     }[];
   }[];
+
+  @Prop({ required: [true, 'Please provide purpose of diet'] })
+  src: string;
 }
 
 export const DietPlanSchema = SchemaFactory.createForClass(DietPlan);

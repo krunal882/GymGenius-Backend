@@ -42,7 +42,9 @@ export class DietPlanService {
 
   async createDietPlan(dietPlanDto: dietPlanDto): Promise<string> {
     try {
+      console.log(dietPlanDto);
       await createOne(this.dietPlanModel, dietPlanDto);
+      console.log('hi');
       return 'Successfully created diet plan';
     } catch (error) {
       if (error instanceof BadRequestException) {
