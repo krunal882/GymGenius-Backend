@@ -20,13 +20,16 @@ export class User extends Document {
   image: string;
 
   @Prop()
-  number: number;
+  number: string;
 
   @Prop()
   password: string;
 
   @Prop()
-  state: string = 'active';
+  state: string;
+
+  @Prop()
+  deletionTime: Date;
 
   @Prop()
   confirmPassword: string;

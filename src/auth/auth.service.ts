@@ -13,10 +13,11 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
-import { deleteOne, updateOne } from 'src/factoryFunction';
+import { updateOne } from 'src/factoryFunction';
 import { updateUser } from './dto/user-update.dto';
 import * as path from 'path';
 import * as sharp from 'sharp';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,11 @@ export class AuthService {
         'Password and confirm password do not match',
       );
     }
-    const user = await this.UserModel.create(createUserDto);
+    const user = await this.UserModel.create({
+      ...createUserDto,
+      state: 'active',
+      role: 'user',
+    });
 
     const payload = { email: user.email, role: user.role, userId: user._id };
 
@@ -64,6 +69,10 @@ export class AuthService {
       !(await await bcrypt.compare(loginUserDto.password, user.password))
     ) {
       throw new UnauthorizedException('Please enter valid email or password ');
+    }
+
+    if (user.state !== 'active') {
+      throw new UnauthorizedException('Your account is currently inactive');
     }
 
     const payload = { email: user.email, role: user.role, userId: user._id };
@@ -172,8 +181,14 @@ export class AuthService {
       throw new NotAcceptableException('Invalid ID');
     }
     try {
-      await deleteOne(this.UserModel, id);
-      return 'Successfully deleted user';
+      const user = await this.UserModel.findById(id);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      user.state = 'inactive';
+      user.deletionTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 day deletion time
+      await user.save();
+      return 'User deletion scheduled';
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new NotFoundException('user not found');
@@ -184,6 +199,22 @@ export class AuthService {
       }
     }
   }
+
+  @Cron('0 0 * * *') // Runs every day at midnight
+  async deleteInactiveUsers() {
+    try {
+      const deletionTimeThreshold = new Date(Date.now());
+      const result = await this.UserModel.deleteMany({
+        state: 'inactive',
+        deletionTime: { $lte: deletionTimeThreshold },
+      });
+
+      return `${result.deletedCount} inactive users deleted`;
+    } catch (error) {
+      throw new Error('Error deleting inactive users: ' + error.message);
+    }
+  }
+
   async uploadFile(
     file: Express.Multer.File,
     id: string,

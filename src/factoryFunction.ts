@@ -40,9 +40,9 @@ export const deleteOne = async <T>(
   model: Model<T>,
   id: mongoose.Types.ObjectId,
 ): Promise<string | null> => {
-  const deletedUser = await model.findByIdAndDelete(id);
+  const deleteItem = await model.findByIdAndDelete(id);
 
-  if (!deletedUser)
+  if (!deleteItem)
     throw new BadRequestException(
       'Status Faild!! Error while Delete operation',
     );

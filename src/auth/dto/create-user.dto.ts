@@ -46,7 +46,4 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Please confirm your password' })
   @IsString({ message: 'Password confirmation must be a string' })
   confirmPassword: string;
-
-  @IsOptional()
-  state?: string = 'active';
 }

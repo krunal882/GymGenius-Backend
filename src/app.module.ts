@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -16,6 +17,7 @@ import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     MongooseModule.forRoot('mongodb://localhost/FitFlex'),
     MulterModule.register(),

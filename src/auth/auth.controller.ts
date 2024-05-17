@@ -118,7 +118,7 @@ export class AuthController {
   @Delete('/deleteUser')
   async deleteUser(@Query('id') id: string): Promise<string> {
     this.authService.deleteUser(id);
-    return 'exercise deleted successfully';
+    return 'user deleted successfully';
   }
 
   @UseGuards(AuthGuard)
