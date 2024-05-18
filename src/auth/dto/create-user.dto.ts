@@ -9,7 +9,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { Role } from '../../utils/role.enum';
+import { Role, State } from '../../utils/role.enum';
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'Please provide a username' })
@@ -33,6 +33,11 @@ export class CreateUserDto {
   @IsString({ message: 'Role must be a string' })
   @IsEnum(Role, { message: 'Invalid role' })
   role: string;
+
+  @IsOptional()
+  @IsString({ message: 'state must be a string' })
+  @IsEnum(State, { message: 'Invalid role' })
+  state: string;
 
   @IsNotEmpty({ message: 'Please provide a password' })
   @IsString({ message: 'Password must be a string' })

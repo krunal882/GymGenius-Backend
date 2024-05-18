@@ -1,8 +1,13 @@
 export enum Role {
   User = 'user',
   Owner = 'owner',
-  Trainer = 'trainer',
 }
+
+export enum State {
+  Active = 'active',
+  Inactive = 'inactive',
+}
+
 export enum ForceType {
   PUSH = 'push',
   PULL = 'pull',

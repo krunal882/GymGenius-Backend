@@ -98,6 +98,15 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @Post('/addUser')
+  async addUser(
+    @Body() createUserDto: CreateUserDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    return this.authService.addUser(createUserDto, res);
+  }
+
+  @UseGuards(AuthGuard)
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadImg(
@@ -116,8 +125,11 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Delete('/deleteUser')
-  async deleteUser(@Query('id') id: string): Promise<string> {
-    this.authService.deleteUser(id);
+  async deleteUser(
+    @Query('id') id: string,
+    @Query('role') role: string,
+  ): Promise<string> {
+    this.authService.deleteUser(id, role);
     return 'user deleted successfully';
   }
 

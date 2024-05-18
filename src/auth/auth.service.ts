@@ -13,11 +13,12 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
-import { updateOne } from 'src/factoryFunction';
+import { deleteOne, updateOne } from 'src/factoryFunction';
 import { updateUser } from './dto/user-update.dto';
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { Cron } from '@nestjs/schedule';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class AuthService {
@@ -175,27 +176,52 @@ export class AuthService {
     return token;
   }
 
-  async deleteUser(id: any): Promise<string> {
-    const isValid = mongoose.Types.ObjectId.isValid(id);
-    if (!isValid) {
-      throw new NotAcceptableException('Invalid ID');
+  async addUser(createUserDto: CreateUserDto, res: Response): Promise<void> {
+    const { password, confirmPassword, email } = createUserDto;
+    const existingUser = await this.UserModel.findOne({ email });
+    if (existingUser) {
+      throw new BadRequestException('Email address is already in use');
     }
-    try {
-      const user = await this.UserModel.findById(id);
-      if (!user) {
-        throw new NotFoundException('User not found');
+    if (password.trim() !== confirmPassword.trim()) {
+      throw new BadRequestException(
+        'Password and confirm password do not match',
+      );
+    }
+
+    const user = await this.UserModel.create(createUserDto);
+    res.json(user);
+  }
+
+  async deleteUser(id: string, role: string): Promise<string> {
+    const user = await this.UserModel.findById(id);
+
+    if (role === 'owner') {
+      console.log('owner');
+      const objectId = new ObjectId(id);
+      await deleteOne(this.UserModel, objectId);
+      return 'Successfully deleted user';
+    } else if (role === 'user') {
+      console.log('user');
+      const isValid = mongoose.Types.ObjectId.isValid(id);
+      if (!isValid) {
+        throw new NotAcceptableException('Invalid ID');
       }
-      user.state = 'inactive';
-      user.deletionTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 day deletion time
-      await user.save();
-      return 'User deletion scheduled';
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new NotFoundException('user not found');
-      } else {
-        throw new BadRequestException(
-          'Status Failed!! Error while Delete operation',
-        );
+      try {
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+        user.state = 'inactive';
+        user.deletionTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 day deletion time
+        await user.save();
+        return 'User deletion scheduled';
+      } catch (error) {
+        if (error instanceof BadRequestException) {
+          throw new NotFoundException('user not found');
+        } else {
+          throw new BadRequestException(
+            'Status Failed!! Error while Delete operation',
+          );
+        }
       }
     }
   }
