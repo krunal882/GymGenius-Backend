@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 import { ProductDto } from './dto/product.dto';
 import { cartDto } from './dto/cart.dto';
 import Stripe from 'stripe';
-import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
+import { createOne, deleteOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
 import { AuthService } from './../auth/auth.service';
 @Injectable()
@@ -57,74 +57,74 @@ export class ShopService {
   }
 
   async getCartProduct(userId: string): Promise<History[]> {
-    const cartProduct = await this.historyModel.find({
-      userId,
-    });
+    try {
+      const cartProducts = await this.historyModel.find({ userId }).exec();
 
-    if (!cartProduct || cartProduct.length === 0) {
-      return;
+      if (!cartProducts || cartProducts.length === 0) {
+        return [];
+      }
+
+      return cartProducts;
+    } catch (error) {
+      console.error('Error while fetching cart products:', error);
+      throw new Error('Error while fetching cart products');
     }
-
-    return cartProduct;
-  }
-
-  async getPurchaseHistory(cartDto: cartDto): Promise<History[]> {
-    return await this.productModel.find({
-      userId: cartDto.userId,
-      status: 'done',
-    });
   }
 
   async getFilteredProduct(queryParams: any): Promise<Product[]> {
-    const filter: any = {};
+    try {
+      const filter: any = {};
 
-    if (queryParams.title) {
-      filter.title = queryParams.title;
-    }
-    if (queryParams.category) {
-      filter.category = queryParams.category;
-    }
-    if (queryParams.id) {
-      filter._id = queryParams.id;
-    }
-    if (queryParams.name) {
-      filter.title = {
-        $regex: new RegExp(queryParams.name, 'i'),
-      };
-    }
-
-    if (
-      queryParams.minPrice !== undefined ||
-      queryParams.maxPrice !== undefined
-    ) {
-      filter['price'] = {};
-      if (queryParams.minPrice !== undefined) {
-        filter['price'].$gte = queryParams.minPrice;
+      if (queryParams.title) {
+        filter.title = queryParams.title;
       }
-      if (queryParams.maxPrice !== undefined) {
-        filter['price'].$lte = queryParams.maxPrice;
+      if (queryParams.category) {
+        filter.category = queryParams.category;
       }
+      if (queryParams.id) {
+        filter._id = queryParams.id;
+      }
+      if (queryParams.name) {
+        filter.title = {
+          $regex: new RegExp(queryParams.name, 'i'),
+        };
+      }
+
+      if (
+        queryParams.minPrice !== undefined ||
+        queryParams.maxPrice !== undefined
+      ) {
+        filter['price'] = {};
+        if (queryParams.minPrice !== undefined) {
+          filter['price'].$gte = queryParams.minPrice;
+        }
+        if (queryParams.maxPrice !== undefined) {
+          filter['price'].$lte = queryParams.maxPrice;
+        }
+      }
+
+      const product = await this.productModel.find({
+        ...filter,
+        state: 'active',
+      });
+
+      if (queryParams['HighToLow'] !== undefined) {
+        product.sort((a: any, b: any) => parseInt(b.price) - parseInt(a.price));
+      } else if (queryParams['LowToHigh'] !== undefined) {
+        product.sort((a: any, b: any) => parseInt(a.price) - parseInt(b.price));
+      } else if (queryParams['sortByOff'] !== undefined) {
+        product.sort(
+          (a: any, b: any) => parseInt(b.off.trim()) - parseInt(a.off.trim()),
+        );
+      }
+
+      return product;
+    } catch (error) {
+      console.error('Error while fetching filtered products:', error);
     }
-
-    const product = await this.productModel.find({
-      ...filter,
-      state: 'active',
-    });
-
-    if (queryParams['HighToLow'] !== undefined) {
-      product.sort((a: any, b: any) => parseInt(b.price) - parseInt(a.price));
-    } else if (queryParams['LowToHigh'] !== undefined) {
-      product.sort((a: any, b: any) => parseInt(a.price) - parseInt(b.price));
-    } else if (queryParams['sortByOff'] !== undefined) {
-      product.sort(
-        (a: any, b: any) => parseInt(b.off.trim()) - parseInt(a.off.trim()),
-      );
-    }
-
-    return product;
   }
 
-  async getAllOrders(): Promise<any> {
+  async getAllOrders(): Promise<any[]> {
     const orders = await this.historyModel.find();
 
     const pendingProducts: { userId: string; productId: string }[] = [];
@@ -168,9 +168,20 @@ export class ShopService {
   }
   async addProduct(productDto: ProductDto): Promise<string> {
     try {
+      const existingProduct = await this.productModel.findOne({
+        title: productDto.title,
+      });
+      if (existingProduct) {
+        throw new BadRequestException(
+          'Product with the same title already exists',
+        );
+      }
+
       await createOne(this.productModel, productDto);
+
       return 'Successfully added product';
     } catch (error) {
+      console.error('Error while adding product:', error);
       throw new BadRequestException('Error while adding product');
     }
   }
@@ -184,15 +195,12 @@ export class ShopService {
         existingCart.product.push(...cartDto.product);
         await existingCart.save();
       } else {
-        await createOne(this.historyModel, {
+        const cart = await createOne(this.historyModel, {
           userId: cartDto.userId,
-          productId: [],
+          product: cartDto.product,
         });
-        const newCart = await this.historyModel.findOne({
-          userId: cartDto.userId,
-        });
-        newCart.product.push(...cartDto.product);
-        await newCart.save();
+
+        await cart.save();
       }
       return 'Successfully added product to cart';
     } catch (error) {
@@ -202,8 +210,12 @@ export class ShopService {
 
   async removeCart(userId: string, productId: string): Promise<string> {
     try {
-      const products = await this.historyModel.findOne({ userId });
-      const productIndex = products.product.findIndex(
+      const cart = await this.historyModel.findOne({ userId });
+
+      if (!cart) {
+        throw new NotFoundException('product not found in cart');
+      }
+      const productIndex = cart.product.findIndex(
         (product) => product.productId === productId,
       );
 
@@ -211,9 +223,9 @@ export class ShopService {
         return 'product not found in cart';
       }
 
-      products.product.splice(productIndex, 1);
+      cart.product.splice(productIndex, 1);
 
-      await products.save();
+      await cart.save();
 
       return 'Successfully removed product from cart';
     } catch (error) {
@@ -273,15 +285,39 @@ export class ShopService {
     id: mongoose.Types.ObjectId,
     updateData: updateProductDto,
   ): Promise<Product> {
-    return await updateOne(this.productModel, id, updateData);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid product ID');
+    }
+
+    try {
+      const updatedProduct = await this.productModel.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true },
+      );
+
+      if (!updatedProduct) {
+        throw new BadRequestException('Product not found');
+      }
+
+      return updatedProduct;
+    } catch (error) {
+      console.error('Error while updating product:', error);
+      throw new BadRequestException('Failed to update product');
+    }
   }
 
-  async productPurchase(price: number, quantity: string, title: string) {
+  async productPurchase(
+    price: number,
+    quantity: string,
+    title: string,
+    email: string,
+  ) {
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      success_url: `http://localhost:8081/store/equipments`,
-      cancel_url: `http://localhost:8081/store/equipments`,
-      customer_email: 'krunalvekariya254@gmail.com',
+      success_url: `http://localhost:8081/profile/purchase`,
+      cancel_url: `http://localhost:8081/store`,
+      customer_email: email,
       mode: 'payment',
       line_items: [
         {

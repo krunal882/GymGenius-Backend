@@ -57,11 +57,6 @@ export class ShopController {
     return await this.shopService.getCartProduct(userId);
   }
 
-  @Get('/history')
-  async getPurchaseHistory(@Body() cartDto: cartDto) {
-    return await this.shopService.getPurchaseHistory(cartDto);
-  }
-
   @Get('/orders')
   async getAllOrders() {
     return await this.shopService.getAllOrders();
@@ -116,14 +111,15 @@ export class ShopController {
   }
   @Patch('/purchase')
   async purchaseProduct(
-    @Body() data: { price: number; quantity: string; title: string },
+    @Body() data: { price: number; quantity: string; title: string ;email:string},
   ) {
-    const { price, quantity, title } = data;
+    const { price, quantity, title ,email} = data;
 
     const purchaseMessage = await this.shopService.productPurchase(
       price,
       quantity,
       title,
+      email,
     );
     return { message: purchaseMessage };
   }
