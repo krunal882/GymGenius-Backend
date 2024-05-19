@@ -11,6 +11,12 @@ import { YogaPoseDto } from './dto/yoga-pose.dto';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateYogaPoseDto } from './dto/yoga-update.dto';
 
+interface YogaPoseFilter {
+  name?: string;
+  category_name?: string;
+  _id?: string;
+}
+
 @Injectable()
 export class YogaService {
   constructor(
@@ -25,7 +31,7 @@ export class YogaService {
     return query.exec();
   }
 
-  async getFilteredYoga(queryParams: any): Promise<YogaPose[]> {
+  async getFilteredYoga(queryParams: YogaPoseFilter): Promise<YogaPose[]> {
     const filter: any = {};
     if (queryParams.name) {
       filter.$or = [
@@ -53,13 +59,14 @@ export class YogaService {
       throw new BadRequestException('Error while creating yoga-pose');
     }
   }
-  async deleteYogaPose(id: any): Promise<string> {
+  async deleteYogaPose(id: string): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
     try {
-      await deleteOne(this.yogaModel, id);
+      const objectId = new mongoose.Types.ObjectId(id);
+      await deleteOne(this.yogaModel, objectId);
       return 'Successfully deleted yoga pose';
     } catch (error) {
       if (error instanceof BadRequestException) {

@@ -11,6 +11,32 @@ import { exerciseDto } from './dto/exercise.dto';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateExercise } from './dto/exercise-update.dto';
 
+interface exercise {
+  force?: string;
+  level?: string;
+  equipment?: string;
+  primaryMuscles?: string;
+  category?: string;
+  mechanic?: string;
+  name?: string;
+  _id?: string;
+}
+
+interface QueryParams {
+  force?: string;
+  level?: string;
+  equipment?: string;
+  primaryMuscles?: string;
+  category?: string;
+  mechanic?: string;
+  name?: string;
+  _id?: string;
+}
+
+type ExerciseFilter = Partial<Omit<exercise, 'name'>> & {
+  name?: string | { $regex: RegExp };
+};
+
 @Injectable()
 export class ExercisesService {
   constructor(
@@ -25,8 +51,8 @@ export class ExercisesService {
     return query.exec();
   }
 
-  async getFilteredExercise(queryParams: any): Promise<Exercise[]> {
-    const filter: any = {};
+  async getFilteredExercise(queryParams: QueryParams): Promise<Exercise[]> {
+    const filter: ExerciseFilter = {};
 
     const filterableKeys = [
       'force',
@@ -61,13 +87,15 @@ export class ExercisesService {
     }
   }
 
-  async deleteExercise(id: any): Promise<string> {
+  async deleteExercise(id: string): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
     try {
-      await deleteOne(this.exerciseModel, id);
+      const objectId = new mongoose.Types.ObjectId(id);
+
+      await deleteOne(this.exerciseModel, objectId);
       return 'Successfully deleted exercise';
     } catch (error) {
       if (error instanceof BadRequestException) {

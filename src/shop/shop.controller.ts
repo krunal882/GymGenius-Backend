@@ -35,7 +35,7 @@ export class ShopController {
     @Query('sortByOff') sortByOff: string,
     @Query('maxPrice') maxPrice: number,
     @Query('minPrice') minPrice: number,
-    @Query('id') id: number,
+    @Query('id') id: string,
     @Query('name') name: string,
   ) {
     const queryParams = {
@@ -49,6 +49,7 @@ export class ShopController {
       id,
       name,
     };
+    console.log(typeof queryParams.id);
     return await this.shopService.getFilteredProduct(queryParams);
   }
 
@@ -111,9 +112,15 @@ export class ShopController {
   }
   @Patch('/purchase')
   async purchaseProduct(
-    @Body() data: { price: number; quantity: string; title: string ;email:string},
+    @Body()
+    data: {
+      price: number;
+      quantity: string;
+      title: string;
+      email: string;
+    },
   ) {
-    const { price, quantity, title ,email} = data;
+    const { price, quantity, title, email } = data;
 
     const purchaseMessage = await this.shopService.productPurchase(
       price,

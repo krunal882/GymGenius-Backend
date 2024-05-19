@@ -11,6 +11,42 @@ import { foodNutritionDto } from './dto/food-nutrition.dto';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateFoodDto } from './dto/food-update.dto';
 
+interface nutrition {
+  category?: string;
+  name?: string;
+  calories?: number;
+  protein?: number;
+  _id?: string;
+  nutritions?: {
+    calories?: number;
+    protein?: number;
+  };
+}
+
+interface QueryParams {
+  category?: string;
+  name?: string;
+  calories?: number;
+  protein?: number;
+  _id?: string;
+  calories_min?: number;
+  calories_max?: number;
+  protein_min?: number;
+  protein_max?: number;
+}
+
+type FoodFilter = Partial<Omit<nutrition, 'name' | 'nutritions'>> & {
+  name?: string | { $regex: RegExp };
+  'nutritions.calories'?: {
+    $gte?: number;
+    $lte?: number;
+  };
+  'nutritions.protein'?: {
+    $gte?: number;
+    $lte?: number;
+  };
+};
+
 @Injectable()
 export class FoodNutritionService {
   constructor(
@@ -25,8 +61,8 @@ export class FoodNutritionService {
     }
     return food.exec();
   }
-  async getFilteredFood(queryParams: any): Promise<FoodNutrition[]> {
-    const filter: any = {};
+  async getFilteredFood(queryParams: QueryParams): Promise<FoodNutrition[]> {
+    const filter: FoodFilter = {};
 
     const filterableKeys = ['category', 'name', 'calories', 'protein', '_id'];
 
@@ -78,13 +114,14 @@ export class FoodNutritionService {
     }
   }
 
-  async deleteFoodItem(id: any): Promise<string> {
+  async deleteFoodItem(id: string): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
     try {
-      await deleteOne(this.foodModel, id);
+      const objectId = new mongoose.Types.ObjectId(id);
+      await deleteOne(this.foodModel, objectId);
       return 'Successfully deleted food item';
     } catch (error) {
       if (error instanceof BadRequestException) {

@@ -20,6 +20,16 @@ import * as sharp from 'sharp';
 import { Cron } from '@nestjs/schedule';
 import { ObjectId } from 'mongodb';
 import { MailerService } from 'src/mailer/mailer.service';
+interface QueryParams {
+  name?: string;
+  email?: string;
+  age?: number;
+  role?: string;
+  state?: string;
+  number?: string;
+  _id?: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(

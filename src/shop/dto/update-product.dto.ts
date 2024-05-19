@@ -7,7 +7,6 @@ import {
 } from 'class-validator';
 
 export class updateProductDto {
-  @IsOptional()
   @IsNotEmpty({ message: 'please provide category of the product' })
   @IsString({ message: 'Product category must be a string' })
   category: string;
@@ -22,12 +21,10 @@ export class updateProductDto {
   @IsString({ message: 'brand name must be a string' })
   brand: string;
 
-  @IsOptional()
   @IsNotEmpty({ message: 'please provide title of product ' })
   @IsString({ message: 'product title must be a string' })
   title: string;
 
-  @IsOptional()
   @IsNotEmpty({ message: 'please provide price of product ' })
   @IsNumber({}, { message: 'product price must be a number' })
   price: number;

@@ -14,6 +14,29 @@ import Stripe from 'stripe';
 import { createOne, deleteOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
 import { AuthService } from './../auth/auth.service';
+
+interface QueryParams {
+  title?: string;
+  category?: string;
+  id?: string;
+  name?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  HighToLow?: string;
+  LowToHigh?: string;
+  sortByOff?: string;
+}
+
+type productFilter = Partial<{
+  title: {};
+  category: string;
+  _id: string;
+  price: {
+    $gte?: number;
+    $lte?: number;
+  };
+}>;
+
 @Injectable()
 export class ShopService {
   private stripe;
@@ -71,9 +94,9 @@ export class ShopService {
     }
   }
 
-  async getFilteredProduct(queryParams: any): Promise<Product[]> {
+  async getFilteredProduct(queryParams: QueryParams): Promise<Product[]> {
     try {
-      const filter: any = {};
+      const filter: productFilter = {};
 
       if (queryParams.title) {
         filter.title = queryParams.title;
@@ -262,13 +285,14 @@ export class ShopService {
     }
   }
 
-  async removeProduct(id: any): Promise<string> {
+  async removeProduct(id: string): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
     try {
-      await deleteOne(this.productModel, id);
+      const objectId = new mongoose.Types.ObjectId(id);
+      await deleteOne(this.productModel, objectId);
       return 'Successfully removed product';
     } catch (error) {
       if (error instanceof BadRequestException) {

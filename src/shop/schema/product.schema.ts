@@ -3,6 +3,9 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Product extends Document {
+  @Prop({ required: [true, 'please provide valid source image'] })
+  id: string;
+
   @Prop({ required: [true, 'please provide category of the product'] })
   category: string;
 

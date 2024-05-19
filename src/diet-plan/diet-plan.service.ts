@@ -10,6 +10,20 @@ import * as mongoose from 'mongoose';
 import { DietPlan } from './schema/diet-paln.schema';
 import { dietPlanDto } from './dto/diet-plan.dto';
 
+interface Dietplan {
+  diet_type?: string;
+  purpose?: string;
+  _id?: string;
+  plan_name?: {};
+}
+
+interface QueryParams {
+  diet_type?: string;
+  purpose?: string;
+  _id?: string;
+  plan_name?: string;
+}
+
 @Injectable()
 export class DietPlanService {
   constructor(
@@ -22,8 +36,8 @@ export class DietPlanService {
     return dietPlan;
   }
 
-  async getFilteredPlan(queryParams: any): Promise<DietPlan[]> {
-    const filter: any = {};
+  async getFilteredPlan(queryParams: QueryParams): Promise<DietPlan[]> {
+    const filter: Dietplan = {};
 
     if (queryParams.diet_type) {
       filter.diet_type = queryParams.diet_type;
@@ -55,14 +69,15 @@ export class DietPlanService {
     }
   }
 
-  async deleteDietPlan(id: any): Promise<string> {
+  async deleteDietPlan(id: string): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
 
+    const objectId = new mongoose.Types.ObjectId(id);
     try {
-      await deleteOne(this.dietPlanModel, id);
+      await deleteOne(this.dietPlanModel, objectId);
       return 'Successfully deleted diet plan';
     } catch (error) {
       if (error instanceof BadRequestException) {
