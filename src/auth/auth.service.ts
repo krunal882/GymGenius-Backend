@@ -19,12 +19,13 @@ import * as path from 'path';
 import * as sharp from 'sharp';
 import { Cron } from '@nestjs/schedule';
 import { ObjectId } from 'mongodb';
-
+import { MailerService } from 'src/mailer/mailer.service';
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private UserModel: mongoose.Model<User>,
     private jwtService: JwtService,
+    private mailerService: MailerService,
   ) {}
 
   async signup(createUserDto: CreateUserDto, res: Response): Promise<void> {
@@ -136,14 +137,14 @@ export class AuthService {
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // Token expires in 1 hour
     user.save();
 
-    // const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
-    // const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
+    const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
+    const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
 
-    // await sendMail({
-    //   to: user.email,
-    //   subject: 'Password Reset',
-    //   html: message,
-    // });
+    await this.mailerService.sendEmail({
+      recipients: user.email,
+      subject: 'Password Reset',
+      html: message,
+    });
     return resetToken;
   }
 
@@ -249,7 +250,7 @@ export class AuthService {
     try {
       const destination = path.resolve(
         __dirname,
-        `../../../../fontend-bootstrap/public/assets/profilePic/${file.originalname}`,
+        `../../../../frontend-bootstrap/public/assets/profilePic/${file.originalname}`,
       );
       await sharp(file.buffer)
         .resize(300, 300)

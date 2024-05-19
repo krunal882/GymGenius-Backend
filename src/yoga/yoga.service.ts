@@ -47,11 +47,10 @@ export class YogaService {
 
   async addYogaPose(yogaPoseDto: YogaPoseDto): Promise<string> {
     try {
-      console.log(yogaPoseDto);
       await createOne(this.yogaModel, yogaPoseDto);
       return 'Successfully added yoga-pose';
     } catch (error) {
-      throw new BadRequestException('Error while creating exercise');
+      throw new BadRequestException('Error while creating yoga-pose');
     }
   }
   async deleteYogaPose(id: any): Promise<string> {

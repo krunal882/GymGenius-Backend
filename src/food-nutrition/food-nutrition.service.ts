@@ -74,7 +74,7 @@ export class FoodNutritionService {
       await createOne(this.foodModel, foodNutritionDto);
       return 'Successfully added foodItem';
     } catch (error) {
-      throw new BadRequestException('Error while creating exercise');
+      throw new BadRequestException('Error while adding food-item');
     }
   }
 
