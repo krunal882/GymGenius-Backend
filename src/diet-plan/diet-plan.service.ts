@@ -22,6 +22,8 @@ interface QueryParams {
   purpose?: string;
   _id?: string;
   plan_name?: string;
+  limit: number;
+  page: number;
 }
 
 @Injectable()
@@ -31,13 +33,21 @@ export class DietPlanService {
     private dietPlanModel: mongoose.Model<DietPlan>,
   ) {}
 
-  async getAllDietPlans(): Promise<DietPlan[]> {
-    const dietPlan = await this.dietPlanModel.find();
+  async getAllDietPlans(limit: number, page: number): Promise<DietPlan[]> {
+    const skip = (page - 1) * limit;
+    const dietPlan = await this.dietPlanModel
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .exec();
     return dietPlan;
   }
 
   async getFilteredPlan(queryParams: QueryParams): Promise<DietPlan[]> {
     const filter: Dietplan = {};
+    const limit = queryParams.limit || 10;
+    const page = queryParams.page || 1;
+    const skip = (page - 1) * limit;
 
     if (queryParams.diet_type) {
       filter.diet_type = queryParams.diet_type;
@@ -51,14 +61,12 @@ export class DietPlanService {
     if (queryParams.plan_name) {
       filter.plan_name = { $regex: new RegExp(queryParams.plan_name, 'i') };
     }
-    return await this.dietPlanModel.find(filter);
+    return await this.dietPlanModel.find(filter).skip(skip).limit(limit);
   }
 
   async createDietPlan(dietPlanDto: dietPlanDto): Promise<string> {
     try {
-      console.log(dietPlanDto);
       await createOne(this.dietPlanModel, dietPlanDto);
-      console.log('hi');
       return 'Successfully created diet plan';
     } catch (error) {
       if (error instanceof BadRequestException) {

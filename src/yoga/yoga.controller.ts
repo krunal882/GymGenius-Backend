@@ -20,8 +20,11 @@ export class YogaController {
   constructor(private readonly yogaService: YogaService) {}
 
   @Get('/')
-  async getAllYogaPoses(@Query('limit') limit: number) {
-    const yoga = await this.yogaService.getAllYogaPoses(limit);
+  async getAllYogaPoses(
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+  ) {
+    const yoga = await this.yogaService.getAllYogaPoses(limit, page);
     return yoga;
   }
 
@@ -30,11 +33,15 @@ export class YogaController {
     @Query('name') name: string,
     @Query('category') category_name: string,
     @Query('yogaId') yogaId: string,
+    @Query('limit') limit: number,
+    @Query('page') page: number,
   ) {
     const queryParams = {
       name,
       category_name,
       _id: yogaId,
+      page,
+      limit,
     };
 
     return await this.yogaService.getFilteredYoga(queryParams);

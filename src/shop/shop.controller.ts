@@ -22,8 +22,11 @@ export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @Get('/')
-  async getShowcaseProduct(@Query('limit') limit?: number) {
-    return await this.shopService.getShowcaseProduct(limit);
+  async getShowcaseProduct(
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
+  ) {
+    return await this.shopService.getShowcaseProduct(limit, page);
   }
 
   @Get('/filtered')
@@ -37,6 +40,8 @@ export class ShopController {
     @Query('minPrice') minPrice: number,
     @Query('id') id: string,
     @Query('name') name: string,
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
   ) {
     const queryParams = {
       title,
@@ -48,8 +53,9 @@ export class ShopController {
       minPrice,
       id,
       name,
+      limit,
+      page
     };
-    console.log(typeof queryParams.id);
     return await this.shopService.getFilteredProduct(queryParams);
   }
 

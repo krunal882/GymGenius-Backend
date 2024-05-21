@@ -20,8 +20,11 @@ export class ExercisesController {
   constructor(private readonly exerciseService: ExercisesService) {}
 
   @Get('/')
-  async getAllExercises(@Query('limit') limit: number) {
-    const exercises = await this.exerciseService.getAllExercises(limit);
+  async getAllExercises(
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+  ) {
+    const exercises = await this.exerciseService.getAllExercises(limit, page);
     return exercises;
   }
 
@@ -35,6 +38,8 @@ export class ExercisesController {
     @Query('mechanic') mechanic: string,
     @Query('name') name: string,
     @Query('exerciseId') exerciseId: string,
+    @Query('limit') limit: number,
+    @Query('page') page: number,
   ) {
     const queryParams = {
       force,
@@ -45,6 +50,8 @@ export class ExercisesController {
       mechanic,
       name,
       _id: exerciseId,
+      page,
+      limit,
     };
     return await this.exerciseService.getFilteredExercise(queryParams);
   }

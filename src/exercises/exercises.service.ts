@@ -31,6 +31,8 @@ interface QueryParams {
   mechanic?: string;
   name?: string;
   _id?: string;
+  limit: number;
+  page: number;
 }
 
 type ExerciseFilter = Partial<Omit<exercise, 'name'>> & {
@@ -43,16 +45,23 @@ export class ExercisesService {
     @InjectModel(Exercise.name) private exerciseModel: mongoose.Model<Exercise>,
   ) {}
 
-  async getAllExercises(limit?: number): Promise<Exercise[]> {
-    let query = this.exerciseModel.find();
-    if (limit) {
-      query = query.limit(limit);
-    }
-    return query.exec();
+  async getAllExercises(limit: number, page: number): Promise<Exercise[]> {
+    const skip = (page - 1) * limit;
+
+    const exercises = await this.exerciseModel
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    return exercises;
   }
 
   async getFilteredExercise(queryParams: QueryParams): Promise<Exercise[]> {
     const filter: ExerciseFilter = {};
+
+    const limit = queryParams.limit || 10;
+    const page = queryParams.page || 1;
+    const skip = (page - 1) * limit;
 
     const filterableKeys = [
       'force',
@@ -75,7 +84,10 @@ export class ExercisesService {
       }
     });
 
-    const exercises = await this.exerciseModel.find(filter);
+    const exercises = await this.exerciseModel
+      .find(filter)
+      .skip(skip)
+      .limit(limit);
     return exercises;
   }
   async createExercise(exerciseDto: exerciseDto): Promise<string> {
@@ -112,7 +124,6 @@ export class ExercisesService {
     _id: mongoose.Types.ObjectId,
     updateData: updateExercise,
   ): Promise<Exercise> {
-    console.log(updateData);
     const data = await updateOne(this.exerciseModel, _id, updateData);
     return data;
   }

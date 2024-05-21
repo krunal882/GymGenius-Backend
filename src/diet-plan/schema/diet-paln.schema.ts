@@ -15,7 +15,7 @@ export class DietPlan extends Document {
   purpose: string;
 
   @Prop({ required: [true, 'Please provide total number of days'] })
-  total_days: number;
+  total_days: string;
 
   @Prop({ required: [true, 'Please provide meals'] })
   meals: {
@@ -32,8 +32,8 @@ export class DietPlan extends Document {
     }[];
   }[];
 
-  @Prop({ required: [true, 'Please provide purpose of diet'] })
-  src: string;
+  // @Prop({ required: [true, 'Please provide purpose of diet'] })
+  // src: string;
 }
 
 export const DietPlanSchema = SchemaFactory.createForClass(DietPlan);

@@ -8,8 +8,8 @@ export class FoodNutrition extends Document {
   })
   name: string;
 
-  @Prop({ required: [true, 'please provide image of food item '] })
-  image: string;
+  // @Prop({ required: [true, 'please provide image of food item '] })
+  // image: string;
 
   @Prop({ required: [true, 'please provide food item category'] })
   category: string;

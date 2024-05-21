@@ -25,6 +25,8 @@ interface QueryParams {
   HighToLow?: string;
   LowToHigh?: string;
   sortByOff?: string;
+  limit?: number;
+  page?: number;
 }
 
 type productFilter = Partial<{
@@ -53,7 +55,7 @@ export class ShopService {
     );
   }
 
-  async getShowcaseProduct(limit?: number): Promise<Product[]> {
+  async getShowcaseProduct(limit?: number, page?: number): Promise<Product[]> {
     const categories = await this.productModel.distinct('category');
 
     const showcaseProducts: Product[] = [];
@@ -61,12 +63,14 @@ export class ShopService {
     for (const category of categories) {
       let products;
       if (limit) {
+        const skip: number = page ? (page - 1) * limit : 0;
         products = await this.productModel
           .find({
             category,
             state: 'active',
           })
-          .limit(limit);
+          .limit(limit)
+          .skip(skip);
       } else {
         products = await this.productModel.find({
           category,
@@ -126,24 +130,40 @@ export class ShopService {
         }
       }
 
-      const product = await this.productModel.find({
+      const query = this.productModel.find({
         ...filter,
         state: 'active',
       });
 
-      if (queryParams['HighToLow'] !== undefined) {
-        product.sort((a: any, b: any) => parseInt(b.price) - parseInt(a.price));
-      } else if (queryParams['LowToHigh'] !== undefined) {
-        product.sort((a: any, b: any) => parseInt(a.price) - parseInt(b.price));
-      } else if (queryParams['sortByOff'] !== undefined) {
-        product.sort(
+      if (queryParams.limit) {
+        query.limit(queryParams.limit);
+      }
+
+      if (queryParams.page) {
+        const skip = (queryParams.page - 1) * queryParams.limit;
+        query.skip(skip);
+      }
+
+      let products = await query.exec();
+
+      if (queryParams.HighToLow !== undefined) {
+        products = products.sort(
+          (a: any, b: any) => parseInt(b.price) - parseInt(a.price),
+        );
+      } else if (queryParams.LowToHigh !== undefined) {
+        products = products.sort(
+          (a: any, b: any) => parseInt(a.price) - parseInt(b.price),
+        );
+      } else if (queryParams.sortByOff !== undefined) {
+        products = products.sort(
           (a: any, b: any) => parseInt(b.off.trim()) - parseInt(a.off.trim()),
         );
       }
 
-      return product;
+      return products;
     } catch (error) {
       console.error('Error while fetching filtered products:', error);
+      throw error;
     }
   }
 

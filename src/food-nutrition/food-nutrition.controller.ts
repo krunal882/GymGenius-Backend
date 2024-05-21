@@ -20,8 +20,8 @@ export class FoodNutritionController {
   constructor(private readonly foodNutritionService: FoodNutritionService) {}
 
   @Get('/')
-  async getAllFood(@Query('limit') limit: number) {
-    const foodItem = await this.foodNutritionService.getAllFood(limit);
+  async getAllFood(@Query('limit') limit: number, @Query('page') page: number) {
+    const foodItem = await this.foodNutritionService.getAllFood(limit, page);
     return foodItem;
   }
   @Get('/filtered')
@@ -33,6 +33,8 @@ export class FoodNutritionController {
     @Query('protein_min') protein_min: number,
     @Query('protein_max') protein_max: number,
     @Query('nutritionId') nutritionId: string,
+    @Query('limit') limit: number,
+    @Query('page') page: number,
   ) {
     const queryParams = {
       category,
@@ -42,6 +44,8 @@ export class FoodNutritionController {
       protein_max,
       protein_min,
       _id: nutritionId,
+      page,
+      limit,
     };
 
     return await this.foodNutritionService.getFilteredFood(queryParams);

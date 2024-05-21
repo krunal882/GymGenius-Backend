@@ -20,8 +20,11 @@ export class DietPlanController {
   constructor(private readonly dietPlanService: DietPlanService) {}
 
   @Get('/')
-  async getAllDietPlans() {
-    const dietPlans = await this.dietPlanService.getAllDietPlans();
+  async getAllDietPlans(
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+  ) {
+    const dietPlans = await this.dietPlanService.getAllDietPlans(limit, page);
     return dietPlans;
   }
 
@@ -31,12 +34,16 @@ export class DietPlanController {
     @Query('purpose') purpose: string,
     @Query('dietId') dietId: string,
     @Query('name') name: string,
+    @Query('limit') limit: number,
+    @Query('page') page: number,
   ) {
     const queryParams = {
       diet_type: dietType,
       purpose: purpose,
       _id: dietId,
       plan_name: name,
+      page,
+      limit,
     };
     return await this.dietPlanService.getFilteredPlan(queryParams);
   }

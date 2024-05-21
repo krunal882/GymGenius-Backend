@@ -15,6 +15,8 @@ interface YogaPoseFilter {
   name?: string;
   category_name?: string;
   _id?: string;
+  limit: number;
+  page: number;
 }
 
 @Injectable()
@@ -23,16 +25,18 @@ export class YogaService {
     @InjectModel(YogaPose.name) private yogaModel: mongoose.Model<YogaPose>,
   ) {}
 
-  async getAllYogaPoses(limit?: number): Promise<YogaPose[]> {
-    let query = this.yogaModel.find();
-    if (limit) {
-      query = query.limit(limit);
-    }
-    return query.exec();
+  async getAllYogaPoses(limit: number, page: number): Promise<YogaPose[]> {
+    const skip = (page - 1) * limit;
+    const yoga = await this.yogaModel.find().skip(skip).limit(limit).exec();
+    return yoga;
   }
 
   async getFilteredYoga(queryParams: YogaPoseFilter): Promise<YogaPose[]> {
     const filter: any = {};
+    const limit = queryParams.limit || 10;
+    const page = queryParams.page || 1;
+    const skip = (page - 1) * limit;
+
     if (queryParams.name) {
       filter.$or = [
         { sanskrit_name_adapted: { $regex: queryParams.name, $options: 'i' } },
@@ -47,7 +51,7 @@ export class YogaService {
     if (queryParams._id) {
       filter._id = queryParams._id;
     }
-    const yogaPoses = await this.yogaModel.find(filter).exec();
+    const yogaPoses = await this.yogaModel.find(filter).skip(skip).limit(limit);
     return yogaPoses;
   }
 

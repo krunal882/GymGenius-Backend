@@ -33,6 +33,8 @@ interface QueryParams {
   calories_max?: number;
   protein_min?: number;
   protein_max?: number;
+  limit?: number;
+  page?: number;
 }
 
 type FoodFilter = Partial<Omit<nutrition, 'name' | 'nutritions'>> & {
@@ -54,15 +56,18 @@ export class FoodNutritionService {
     private foodModel: mongoose.Model<FoodNutrition>,
   ) {}
 
-  async getAllFood(limit?: number): Promise<FoodNutrition[]> {
-    let food = this.foodModel.find();
-    if (limit) {
-      food = food.limit(limit);
-    }
-    return food.exec();
+  async getAllFood(limit: number, page: number): Promise<FoodNutrition[]> {
+    const skip = (page - 1) * limit;
+
+    const food = await this.foodModel.find().skip(skip).limit(limit).exec();
+    return food;
   }
   async getFilteredFood(queryParams: QueryParams): Promise<FoodNutrition[]> {
     const filter: FoodFilter = {};
+
+    const limit = queryParams.limit || 10;
+    const page = queryParams.page || 1;
+    const skip = (page - 1) * limit;
 
     const filterableKeys = ['category', 'name', 'calories', 'protein', '_id'];
 
@@ -101,16 +106,17 @@ export class FoodNutritionService {
       }
     }
 
-    const Food = await this.foodModel.find(filter);
+    const Food = await this.foodModel.find(filter).skip(skip).limit(limit);
     return Food;
   }
 
   async addFoodItem(foodNutritionDto: foodNutritionDto): Promise<string> {
     try {
+      console.log(foodNutritionDto);
       await createOne(this.foodModel, foodNutritionDto);
       return 'Successfully added foodItem';
     } catch (error) {
-      throw new BadRequestException('Error while adding food-item');
+      throw new BadRequestException(error);
     }
   }
 
