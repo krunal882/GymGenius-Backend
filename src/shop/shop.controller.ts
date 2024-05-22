@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
@@ -15,9 +16,10 @@ import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
 import { cartDto } from './dto/cart.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Response } from 'express';
 
 @Controller('store')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
@@ -54,7 +56,7 @@ export class ShopController {
       id,
       name,
       limit,
-      page
+      page,
     };
     return await this.shopService.getFilteredProduct(queryParams);
   }
@@ -124,16 +126,34 @@ export class ShopController {
       quantity: string;
       title: string;
       email: string;
+      userId: string;
+      productId: string[];
     },
   ) {
-    const { price, quantity, title, email } = data;
+    const { price, quantity, title, email, userId, productId } = data;
 
     const purchaseMessage = await this.shopService.productPurchase(
       price,
       quantity,
       title,
       email,
+      userId,
+      productId,
     );
     return { message: purchaseMessage };
+  }
+
+  @Post('webhook')
+  webhook(@Body() event: any, @Res() response: Response) {
+    try {
+      // event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+      console.log(`Webhook Error: ${err.message}`);
+      return response.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    this.shopService.handleStripeWebhook(event);
+
+    response.send();
   }
 }

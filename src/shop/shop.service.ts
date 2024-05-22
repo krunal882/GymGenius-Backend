@@ -10,10 +10,10 @@ import { History } from './schema/history.schema';
 import mongoose from 'mongoose';
 import { ProductDto } from './dto/product.dto';
 import { cartDto } from './dto/cart.dto';
-import Stripe from 'stripe';
 import { createOne, deleteOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
 import { AuthService } from './../auth/auth.service';
+import Stripe from 'stripe';
 
 interface QueryParams {
   title?: string;
@@ -49,13 +49,10 @@ export class ShopService {
   ) {
     this.stripe = new Stripe(
       'sk_test_51Os07pSDcQHlNOyRkUjAGezWu07HqKIcKkrgWlBqiLvr7b1d1WjYV81nbS9Mnc43GBmtWFe9W13Om1qfWr1CxpYp00qUTDJ0bi',
-      {
-        apiVersion: '2020-08-27',
-      },
     );
   }
 
-  async getShowcaseProduct(limit?: number, page?: number): Promise<Product[]> {
+  async getShowcaseProduct(limit: number, page: number): Promise<Product[]> {
     const categories = await this.productModel.distinct('category');
 
     const showcaseProducts: Product[] = [];
@@ -69,8 +66,8 @@ export class ShopService {
             category,
             state: 'active',
           })
-          .limit(limit)
-          .skip(skip);
+          .skip(skip)
+          .limit(limit);
       } else {
         products = await this.productModel.find({
           category,
@@ -187,7 +184,7 @@ export class ShopService {
       new Set(pendingProducts.map((prod) => prod.userId)),
     );
     const promises = uniqueUserIds.map(async (userId) => {
-      const user = await this.authService.getFilteredUser({ _id: userId });
+      const user = await this.authService.getFilteredUser({ id: userId });
 
       const userPendingProducts = pendingProducts.filter(
         (prod) => prod.userId === userId,
@@ -234,6 +231,7 @@ export class ShopService {
       const existingCart = await this.historyModel.findOne({
         userId: cartDto.userId,
       });
+
       if (existingCart) {
         existingCart.product.push(...cartDto.product);
         await existingCart.save();
@@ -242,7 +240,6 @@ export class ShopService {
           userId: cartDto.userId,
           product: cartDto.product,
         });
-
         await cart.save();
       }
       return 'Successfully added product to cart';
@@ -279,10 +276,18 @@ export class ShopService {
       }
     }
   }
-  async updateCart(userId: string, productId: string[]): Promise<string> {
+  async updateCart(
+    userId: string,
+    productId: string | string[],
+  ): Promise<string> {
     try {
-      for (const id of productId) {
-        const filter = { userId, 'product.productId': id };
+      const productIds = Array.isArray(productId) ? productId : [productId];
+
+      for (const id of productIds) {
+        const filter = {
+          userId,
+          'product.productId': id,
+        };
         const update = { $set: { 'product.$.status': 'done' } };
         const result = await this.historyModel.updateOne(filter, update);
 
@@ -356,6 +361,8 @@ export class ShopService {
     quantity: string,
     title: string,
     email: string,
+    userId: string,
+    productId: string[],
   ) {
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -363,6 +370,7 @@ export class ShopService {
       cancel_url: `http://localhost:8081/store`,
       customer_email: email,
       mode: 'payment',
+
       line_items: [
         {
           price_data: {
@@ -376,10 +384,33 @@ export class ShopService {
             },
             unit_amount: price * 100,
           },
+
           quantity: 1,
         },
       ],
+      metadata: {
+        totalQuantity: quantity,
+        userId: userId,
+        productId: productId.join(','),
+      },
     });
     return session;
+  }
+  async handleStripeWebhook(event: any) {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object;
+        let { productId } = session.metadata;
+        const { userId } = session.metadata;
+        try {
+          if (typeof productId === 'string') {
+            productId = productId.split(',');
+          }
+          await this.updateCart(userId, productId);
+        } catch (error) {
+          console.error('Error updating cart:', error);
+        }
+        break;
+    }
   }
 }
