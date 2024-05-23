@@ -7,9 +7,7 @@ import {
   Post,
   Query,
   Res,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
   ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -19,8 +17,6 @@ import { Response } from 'express';
 import mongoose from 'mongoose';
 import { updateUser } from './dto/user-update.dto';
 import { AuthGuard } from './auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
-// import { diskStorage } from 'multer';
 import * as path from 'path';
 
 interface FileParams {
@@ -80,10 +76,10 @@ export class AuthController {
     @Query('name') name: string,
     @Query('email') email: string,
     @Query('age') age: number,
-    @Query('number') number: number,
+    @Query('number') number: string,
     @Query('role') role: string,
     @Query('state') state: string,
-    @Query('id') _id: mongoose.ObjectId,
+    @Query('id') _id: string,
   ) {
     const queryParams = {
       name,
@@ -106,15 +102,24 @@ export class AuthController {
     return this.authService.addUser(createUserDto, res);
   }
 
+  // @UseGuards(AuthGuard)
+  // @Post('/upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadImg(
+  //   @Res() res: Response,
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Body('id') id: string,
+  // ) {
+  //   await this.authService.uploadFile(file, id, res);
+  // }
+
   @UseGuards(AuthGuard)
   @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadImg(
-    @Res() res: Response,
-    @UploadedFile() file: Express.Multer.File,
-    @Body('id') id: string,
-  ) {
-    await this.authService.uploadFile(file, id, res);
+  async uploadImage(
+    @Body() body: { userId: string; imgUrl: string },
+  ): Promise<string> {
+    const { userId, imgUrl } = body;
+    return await this.authService.uploadImage(userId, imgUrl);
   }
 
   @UseGuards(AuthGuard)

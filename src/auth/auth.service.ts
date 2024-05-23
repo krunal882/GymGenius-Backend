@@ -15,11 +15,11 @@ import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { deleteOne, updateOne } from 'src/factoryFunction';
 import { updateUser } from './dto/user-update.dto';
-import * as path from 'path';
-import * as sharp from 'sharp';
+
 import { Cron } from '@nestjs/schedule';
 import { ObjectId } from 'mongodb';
 import { MailerService } from 'src/mailer/mailer.service';
+
 interface QueryParams {
   name?: string;
   email?: string;
@@ -27,7 +27,7 @@ interface QueryParams {
   role?: string;
   state?: string;
   number?: string;
-  _id?: string;
+  id?: string;
 }
 
 @Injectable()
@@ -104,17 +104,21 @@ export class AuthService {
     });
   }
 
-  async getAllUsers(page: number, limit: number): Promise<User[]> {
+  async getAllUsers(
+    page: number,
+    limit: number,
+  ): Promise<{ total: number; users: User[] }> {
     const skip = (page - 1) * limit;
     const users = await this.UserModel.find()
       .select('_id name email age number role state')
       .skip(skip)
       .limit(limit)
       .exec();
-    return users;
+    const total = await this.UserModel.countDocuments();
+    return { users, total };
   }
 
-  async getFilteredUser(queryParams: any): Promise<User[]> {
+  async getFilteredUser(queryParams: QueryParams): Promise<User[]> {
     const filter: any = {};
 
     const filterableKeys = [
@@ -126,13 +130,12 @@ export class AuthService {
       'number',
       '_id',
     ];
-
     filterableKeys.forEach((key) => {
       if (queryParams[key]) {
         filter[key] = queryParams[key];
       }
     });
-    return await this.UserModel.find(filter);
+    return await this.UserModel.find(filter).select('-password -_id -state');
   }
 
   async forgotPassword(email: string): Promise<string> {
@@ -207,12 +210,10 @@ export class AuthService {
     const user = await this.UserModel.findById(id);
 
     if (role === 'owner') {
-      console.log('owner');
       const objectId = new ObjectId(id);
       await deleteOne(this.UserModel, objectId);
       return 'Successfully deleted user';
     } else if (role === 'user') {
-      console.log('user');
       const isValid = mongoose.Types.ObjectId.isValid(id);
       if (!isValid) {
         throw new NotAcceptableException('Invalid ID');
@@ -252,29 +253,18 @@ export class AuthService {
     }
   }
 
-  async uploadFile(
-    file: Express.Multer.File,
-    id: string,
-    res: Response,
-  ): Promise<void> {
+  async uploadImage(userId: string, imgUrl: string): Promise<string> {
     try {
-      const destination = path.resolve(
-        __dirname,
-        `../../../../frontend-bootstrap/public/assets/profilePic/${file.originalname}`,
-      );
-      await sharp(file.buffer)
-        .resize(300, 300)
-        .toFormat('jpeg')
-        .toFile(destination);
+      const user = await this.UserModel.findById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      user.src = imgUrl;
+      await user.save();
 
-      await this.UserModel.updateOne(
-        { _id: id },
-        { profilePicture: file.originalname },
-      );
-      res.sendFile(destination);
+      return user.src;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      res.status(500).send('Error uploading image');
+      console.log(error);
     }
   }
 
