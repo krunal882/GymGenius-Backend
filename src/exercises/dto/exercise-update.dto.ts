@@ -40,12 +40,10 @@ export class updateExercise {
 
   @IsNotEmpty()
   @IsArray({ message: 'primaryMuscles should be an array of string' })
-  @IsString({ message: 'Each primary muscle must be a string' })
   primaryMuscles: string[];
 
   @IsOptional()
   @IsArray({ message: 'secondaryMuscles should be an array of string' })
-  @IsString({ message: 'Each secondary muscle must be a string' })
   secondaryMuscles: string[];
 
   @IsNotEmpty()

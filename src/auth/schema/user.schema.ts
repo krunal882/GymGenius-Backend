@@ -17,7 +17,7 @@ export class User extends Document {
   role: string;
 
   @Prop()
-  image: string;
+  src: string;
 
   @Prop()
   number: string;

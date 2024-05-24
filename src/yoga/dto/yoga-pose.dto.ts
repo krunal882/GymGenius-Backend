@@ -32,9 +32,9 @@ export class YogaPoseDto {
   @IsString({ message: 'pose benefits must be a string' })
   pose_benefits: string;
 
-  // @IsNotEmpty({
-  //   message: 'please provide png photo or source link of the yoga pose',
-  // })
-  // @IsString({ message: 'url must be a string' })
-  // url_png: string;
+  @IsNotEmpty({
+    message: 'please provide png photo or source link of the yoga pose',
+  })
+  @IsString({ message: 'url must be a string' })
+  url_png: string;
 }

@@ -13,7 +13,7 @@ export class ProductDto {
 
   @IsNotEmpty({ message: 'please provide image  ' })
   @IsString({ message: 'image name must be a string' })
-  src: string;
+  cloudImg: string;
 
   @IsOptional()
   @IsString({ message: 'brand name must be a string' })
@@ -40,7 +40,7 @@ export class ProductDto {
   tag: string;
 
   @IsOptional()
-  @IsEnum(['active', 'de-active'], {
+  @IsEnum(['active', 'inactive'], {
     message: 'product state must be active or de-active',
   })
   @IsString({ message: 'product tag must be a string' })

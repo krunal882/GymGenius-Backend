@@ -3,14 +3,17 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Product extends Document {
-  @Prop({ required: [true, 'please provide valid source image'] })
+  @Prop()
   id: string;
 
   @Prop({ required: [true, 'please provide category of the product'] })
   category: string;
 
-  @Prop({ required: [true, 'please provide valid source image'] })
+  @Prop()
   src: string;
+
+  @Prop()
+  cloudImg: string;
 
   @Prop({ required: [true, 'please provide valid brand name of product'] })
   brand: string;

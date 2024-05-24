@@ -11,6 +11,9 @@ export class FoodNutrition extends Document {
   // @Prop({ required: [true, 'please provide image of food item '] })
   // image: string;
 
+  @Prop({ required: [true, 'please provide image of food item '] })
+  cloudImg: string;
+
   @Prop({ required: [true, 'please provide food item category'] })
   category: string;
 

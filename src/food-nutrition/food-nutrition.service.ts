@@ -112,7 +112,6 @@ export class FoodNutritionService {
 
   async addFoodItem(foodNutritionDto: foodNutritionDto): Promise<string> {
     try {
-      console.log(foodNutritionDto);
       await createOne(this.foodModel, foodNutritionDto);
       return 'Successfully added foodItem';
     } catch (error) {

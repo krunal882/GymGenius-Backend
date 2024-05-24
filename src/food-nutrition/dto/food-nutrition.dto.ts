@@ -14,6 +14,9 @@ export class foodNutritionDto {
   // @IsNotEmpty({ message: 'please provide food item image' })
   // @IsString({ message: 'image name must be a string' })
   // image: string;
+  @IsNotEmpty({ message: 'please provide food item image' })
+  @IsString({ message: 'image name must be a string' })
+  cloudImg: string;
 
   @IsNotEmpty({ message: 'please provide food item category' })
   @IsString({ message: 'category name must be a string' })
@@ -25,7 +28,7 @@ export class foodNutritionDto {
 
   @IsNotEmpty({ message: 'Please provide nutritional values for food items' })
   @IsObject({ message: 'Nutritions must be an object' })
-  nutritions: Record<string, number>; 
+  nutritions: Record<string, number>;
 
   @IsNotEmpty({ message: 'Please provide culinary uses of food items' })
   @IsString({ each: true, message: 'Each culinary use must be a string' })

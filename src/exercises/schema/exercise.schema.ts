@@ -16,6 +16,11 @@ export class Exercise extends Document {
   force: string;
 
   @Prop({
+    required: [true, 'Please provide the exercise image'],
+  })
+  cloudImg: string;
+
+  @Prop({
     enum: [ExerciseLevel],
     default: 'intermediate',
   })

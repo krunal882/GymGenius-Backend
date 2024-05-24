@@ -31,13 +31,13 @@ export class YogaPose extends Document {
   @Prop({ required: [true, 'please provide benefits of the yoga-pose'] })
   pose_benefits: string;
 
-  // @Prop({
-  //   required: [
-  //     true,
-  //     'please provide png photo or source link of the yoga pose',
-  //   ],
-  // })
-  // url_png: string;
+  @Prop({
+    required: [
+      true,
+      'please provide png photo or source link of the yoga pose',
+    ],
+  })
+  url_png: string;
 }
 
 export const YogaPoseSchema = SchemaFactory.createForClass(YogaPose);

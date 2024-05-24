@@ -19,6 +19,10 @@ export class exerciseDto {
   })
   level: string;
 
+  @IsNotEmpty({ message: 'please provide image exercise' })
+  @IsString({ message: 'image  must be a string' })
+  cloudImg: string;
+
   @IsOptional()
   @IsString({ message: 'mechanic must be a string' })
   mechanic: string;

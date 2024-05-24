@@ -34,7 +34,7 @@ export class updateUser {
   @IsOptional()
   @IsNotEmpty()
   @IsString({ message: 'user profile pic must be a string' })
-  image: string;
+  src: string;
 
   @IsOptional()
   @IsString()

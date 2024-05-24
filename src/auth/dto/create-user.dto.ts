@@ -35,6 +35,10 @@ export class CreateUserDto {
   role: string;
 
   @IsOptional()
+  @IsString({ message: 'Profile image name should be string' })
+  src: string;
+
+  @IsOptional()
   @IsString({ message: 'state must be a string' })
   @IsEnum(State, { message: 'Invalid role' })
   state: string;

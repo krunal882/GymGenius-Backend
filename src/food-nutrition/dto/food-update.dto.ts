@@ -13,9 +13,13 @@ export class updateFoodDto {
   @IsString({ message: 'food item name must be a string' })
   name: string;
 
+  // @IsOptional()
+  // @IsString({ message: 'image name must be a string' })
+  // image: string;
+
   @IsOptional()
-  @IsString({ message: 'image name must be a string' })
-  image: string;
+  @IsString({ message: 'image must be a string' })
+  cloudImg: string;
 
   @IsNotEmpty({ message: 'please provide food item category' })
   @IsString({ message: 'category name must be a string' })

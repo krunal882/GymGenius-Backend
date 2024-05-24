@@ -35,7 +35,6 @@ export class MailerService {
       const result = await transport.sendMail(options);
       return result;
     } catch (error) {
-      console.log('Error sending mail:', error);
       throw error;
     }
   }
