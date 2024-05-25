@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
@@ -142,7 +143,6 @@ export class ShopService {
       }
 
       let products = await query.exec();
-
       if (queryParams.HighToLow !== undefined) {
         products = products.sort(
           (a: any, b: any) => parseInt(b.price) - parseInt(a.price),
@@ -233,7 +233,7 @@ export class ShopService {
       });
 
       if (existingCart) {
-        existingCart.product.push(...cartDto.product);
+        existingCart.product = [...cartDto.product];
         await existingCart.save();
       } else {
         const cart = await createOne(this.historyModel, {
@@ -258,7 +258,6 @@ export class ShopService {
       const productIndex = cart.product.findIndex(
         (product) => product.productId === productId,
       );
-
       if (productIndex === -1) {
         return 'product not found in cart';
       }
@@ -279,6 +278,7 @@ export class ShopService {
   async updateCart(
     userId: string,
     productId: string | string[],
+    paymentId?: string,
   ): Promise<string> {
     try {
       const productIds = Array.isArray(productId) ? productId : [productId];
@@ -289,6 +289,9 @@ export class ShopService {
           'product.productId': id,
         };
         const update = { $set: { 'product.$.status': 'done' } };
+        if (paymentId) {
+          update.$set['product.$.paymentId'] = paymentId;
+        }
         const result = await this.historyModel.updateOne(filter, update);
 
         if (result.matchedCount === 0) {
@@ -402,15 +405,26 @@ export class ShopService {
         const session = event.data.object;
         let { productId } = session.metadata;
         const { userId } = session.metadata;
+        const paymentId = session.payment_intent as string;
         try {
           if (typeof productId === 'string') {
             productId = productId.split(',');
           }
-          await this.updateCart(userId, productId);
+          await this.updateCart(userId, productId, paymentId);
         } catch (error) {
           console.error('Error updating cart:', error);
         }
         break;
+    }
+  }
+  async refundPayment(paymentId: string): Promise<Stripe.Refund> {
+    try {
+      const refund = await this.stripe.refunds.create({
+        payment_intent: 'pi_3PKL88SDcQHlNOyR0JcHQNXo',
+      });
+      return refund;
+    } catch (error) {
+      throw new InternalServerErrorException('Refund failed: ' + error.message);
     }
   }
 }

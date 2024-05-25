@@ -15,7 +15,7 @@ import { ProductDto } from './dto/product.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
 import { cartDto } from './dto/cart.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+// import { AuthGuard } from 'src/auth/auth.guard';
 import { Response } from 'express';
 
 @Controller('store')
@@ -146,7 +146,7 @@ export class ShopController {
   @Post('webhook')
   webhook(@Body() event: any, @Res() response: Response) {
     try {
-      // event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+      console.log(event.data.object.id);
     } catch (err) {
       console.log(`Webhook Error: ${err.message}`);
       return response.status(400).send(`Webhook Error: ${err.message}`);
@@ -155,5 +155,10 @@ export class ShopController {
     this.shopService.handleStripeWebhook(event);
 
     response.send();
+  }
+
+  @Patch('/refund')
+  async refund(@Body() paymentId: string) {
+    return await this.shopService.refundPayment(paymentId);
   }
 }
