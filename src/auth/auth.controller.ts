@@ -18,6 +18,7 @@ import mongoose from 'mongoose';
 import { updateUser } from './dto/user-update.dto';
 import { AuthGuard } from './auth.guard';
 import * as path from 'path';
+import { ChangePasswordDto } from './dto/password-change.dto';
 
 interface FileParams {
   fileName: string;
@@ -102,17 +103,6 @@ export class AuthController {
     return this.authService.addUser(createUserDto, res);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Post('/upload')
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadImg(
-  //   @Res() res: Response,
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Body('id') id: string,
-  // ) {
-  //   await this.authService.uploadFile(file, id, res);
-  // }
-
   @UseGuards(AuthGuard)
   @Post('/upload')
   async uploadImage(
@@ -131,7 +121,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Delete('/deleteUser')
   async deleteUser(
-    @Query('id') id: string,
+    @Query('id') id: mongoose.Types.ObjectId,
     @Query('role') role: string,
   ): Promise<string> {
     this.authService.deleteUser(id, role);
@@ -146,5 +136,12 @@ export class AuthController {
   ): Promise<string> {
     await this.authService.updateUser(id, updateData);
     return 'user updated successfully';
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('change-password')
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    await this.authService.changePassword(changePasswordDto);
+    return { message: 'Password changed successfully' };
   }
 }

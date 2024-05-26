@@ -17,8 +17,8 @@ import { deleteOne, updateOne } from 'src/factoryFunction';
 import { updateUser } from './dto/user-update.dto';
 
 import { Cron } from '@nestjs/schedule';
-import { ObjectId } from 'mongodb';
 import { MailerService } from 'src/mailer/mailer.service';
+import { ChangePasswordDto } from './dto/password-change.dto';
 
 interface QueryParams {
   name?: string;
@@ -60,11 +60,6 @@ export class AuthService {
 
     const token = await this.jwtService.signAsync(payload);
 
-    // res.cookie('Authorization', ` ${token}`, {
-    //   httpOnly: true,
-    //   // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
-    // });
-
     res.json({
       token,
       user,
@@ -91,16 +86,8 @@ export class AuthService {
 
     const token = await this.jwtService.signAsync(payload);
 
-    // res.set('Authorization', `Bearer ${token}`);
-
-    // res.cookie('Authorization', `Bearer ${token}`, {
-    //   httpOnly: true,
-    //   // maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
-    // });
-
     res.json({
       token,
-      // user,
     });
   }
 
@@ -144,13 +131,12 @@ export class AuthService {
       throw new BadRequestException('User with this email does not exist');
     }
 
-    const resetToken = this.generateResetToken(user);
-
-    user.resetPasswordToken = await resetToken;
+    const resetToken = await this.generateResetToken(user);
+    user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // Token expires in 1 hour
     user.save();
 
-    const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
+    const resetURL = `http://localhost:8081/resetPassword/${resetToken}`;
     const message = `Forgot your password? Click <a href="${resetURL}">here</a> to reset your password.`;
 
     await this.mailerService.sendEmail({
@@ -170,8 +156,6 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('invalid token or token expired');
     }
-    // const resetToken = this.generateResetToken(user);
-
     user.password = newPassword;
     user.confirmPassword = newConfirmPassword;
     await user.save();
@@ -206,12 +190,11 @@ export class AuthService {
     res.json(user);
   }
 
-  async deleteUser(id: string, role: string): Promise<string> {
+  async deleteUser(id: mongoose.Types.ObjectId, role: string): Promise<string> {
     const user = await this.UserModel.findById(id);
 
     if (role === 'owner') {
-      const objectId = new ObjectId(id);
-      await deleteOne(this.UserModel, objectId);
+      await deleteOne(this.UserModel, id);
       return 'Successfully deleted user';
     } else if (role === 'user') {
       const isValid = mongoose.Types.ObjectId.isValid(id);
@@ -273,5 +256,24 @@ export class AuthService {
     updateData: updateUser,
   ): Promise<User> {
     return await updateOne(this.UserModel, id, updateData);
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+    const { userId, oldPassword, newPassword } = changePasswordDto;
+    const user = await this.UserModel.findById(userId).exec();
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const isPasswordMatching = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPasswordMatching) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
   }
 }
