@@ -15,11 +15,11 @@ import { ProductDto } from './dto/product.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
 import { cartDto } from './dto/cart.dto';
-// import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { Response } from 'express';
 
 @Controller('store')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
@@ -146,9 +146,7 @@ export class ShopController {
   @Post('webhook')
   webhook(@Body() event: any, @Res() response: Response) {
     try {
-      console.log(event.data.object.id);
     } catch (err) {
-      console.log(`Webhook Error: ${err.message}`);
       return response.status(400).send(`Webhook Error: ${err.message}`);
     }
 
@@ -158,7 +156,8 @@ export class ShopController {
   }
 
   @Patch('/refund')
-  async refund(@Body() paymentId: string) {
+  async refund(@Body() paymentIdObj: { [key: string]: string }) {
+    const paymentId = Object.keys(paymentIdObj)[0];
     return await this.shopService.refundPayment(paymentId);
   }
 }

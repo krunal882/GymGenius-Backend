@@ -83,8 +83,7 @@ export class ShopService {
 
   async getCartProduct(userId: string): Promise<History[]> {
     try {
-      const cartProducts = await this.historyModel.find({ userId }).exec();
-
+      const cartProducts = await this.historyModel.find({ userId });
       if (!cartProducts || cartProducts.length === 0) {
         return [];
       }
@@ -233,7 +232,7 @@ export class ShopService {
       });
 
       if (existingCart) {
-        existingCart.product = [...cartDto.product];
+        existingCart.product = [...existingCart.product, ...cartDto.product];
         await existingCart.save();
       } else {
         const cart = await createOne(this.historyModel, {
@@ -420,7 +419,7 @@ export class ShopService {
   async refundPayment(paymentId: string): Promise<Stripe.Refund> {
     try {
       const refund = await this.stripe.refunds.create({
-        payment_intent: 'pi_3PKL88SDcQHlNOyR0JcHQNXo',
+        payment_intent: paymentId,
       });
       return refund;
     } catch (error) {
