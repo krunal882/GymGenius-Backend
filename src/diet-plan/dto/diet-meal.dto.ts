@@ -1,5 +1,6 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { dietFoodDto } from './diet-food.dto';
+import { Type } from 'class-transformer';
 
 export class dietMeal {
   @IsNotEmpty({ message: 'please provide the day of the meal' })
@@ -12,5 +13,7 @@ export class dietMeal {
 
   @IsNotEmpty({ message: 'please provide the food detail' })
   @IsArray({ message: 'meal should be an array' })
+  @ValidateNested({ each: true })
+  @Type(() => dietFoodDto)
   foods: dietFoodDto[];
 }

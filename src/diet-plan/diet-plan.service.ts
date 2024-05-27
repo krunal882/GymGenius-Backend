@@ -34,6 +34,10 @@ export class DietPlanService {
   ) {}
 
   async getAllDietPlans(limit: number, page: number): Promise<DietPlan[]> {
+    if (limit <= 0 || page <= 0) {
+      throw new BadRequestException('Limit and page must be positive numbers.');
+    }
+
     const skip = (page - 1) * limit;
     const dietPlan = await this.dietPlanModel
       .find()
@@ -61,41 +65,26 @@ export class DietPlanService {
     if (queryParams.plan_name) {
       filter.plan_name = { $regex: new RegExp(queryParams.plan_name, 'i') };
     }
-    return await this.dietPlanModel.find(filter).skip(skip).limit(limit);
+    const dietPlans = await this.dietPlanModel
+      .find(filter)
+      .skip(skip)
+      .limit(limit);
+    return dietPlans;
   }
 
-  async createDietPlan(dietPlanDto: dietPlanDto): Promise<string> {
-    try {
-      await createOne(this.dietPlanModel, dietPlanDto);
-      return 'Successfully created diet plan';
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException(
-          'Status Failed!! Error while creating diet plan',
-        );
-      }
-    }
+  async createDietPlan(dietPlanDto: dietPlanDto): Promise<void> {
+    await createOne(this.dietPlanModel, dietPlanDto);
   }
 
-  async deleteDietPlan(id: string): Promise<string> {
+  async deleteDietPlan(id: string): Promise<void> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
 
     const objectId = new mongoose.Types.ObjectId(id);
-    try {
-      await deleteOne(this.dietPlanModel, objectId);
-      return 'Successfully deleted diet plan';
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new NotFoundException('Diet plan not found');
-      } else {
-        throw new BadRequestException(
-          'Status Failed!! Error while Delete operation',
-        );
-      }
-    }
+
+    await deleteOne(this.dietPlanModel, objectId);
   }
 
   async updateDietPlan(

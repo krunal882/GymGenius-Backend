@@ -1,5 +1,12 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { dietMeal } from './diet-meal.dto';
+import { Type } from 'class-transformer';
 
 export class updateDiet {
   @IsNotEmpty()
@@ -20,6 +27,8 @@ export class updateDiet {
 
   @IsNotEmpty()
   @IsArray({ message: 'meal should be an array' })
+  @ValidateNested({ each: true })
+  @Type(() => dietMeal)
   meals: dietMeal[];
 
   @IsNotEmpty()

@@ -32,9 +32,6 @@ export class DietPlan extends Document {
     }[];
   }[];
 
-  // @Prop({ required: [true, 'Please provide image of diet'] })
-  // src: string;
-
   @Prop({ required: [true, 'Please provide image of diet'] })
   cloudImg: string;
 }
