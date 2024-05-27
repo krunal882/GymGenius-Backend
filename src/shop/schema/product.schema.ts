@@ -3,37 +3,52 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Product extends Document {
-  @Prop()
-  id: string;
-
-  @Prop({ required: [true, 'please provide category of the product'] })
+  @Prop({
+    required: [true, 'please provide category of the product'],
+    type: String,
+  })
   category: string;
 
-  @Prop()
+  @Prop({
+    required: false,
+    type: String,
+  })
   src: string;
 
-  @Prop()
+  @Prop({
+    required: false,
+    type: String,
+  })
   cloudImg: string;
 
-  @Prop({ required: [true, 'please provide valid brand name of product'] })
+  @Prop({
+    required: [true, 'please provide valid brand name of product'],
+    type: String,
+  })
   brand: string;
 
-  @Prop({ required: [true, 'please provide valid title of product'] })
+  @Prop({
+    required: [true, 'please provide valid title of product'],
+    type: String,
+  })
   title: string;
 
-  @Prop({ required: [true, 'please provide valid price of product'] })
+  @Prop({
+    required: [true, 'please provide valid price of product'],
+    type: Number,
+  })
   price: number;
 
-  @Prop({ required: [false] })
+  @Prop({ required: false, type: String })
   original_price: string;
 
-  @Prop({ required: [false] })
+  @Prop({ required: false, type: String })
   off: string;
 
-  @Prop({ required: [false] })
+  @Prop({ required: false, type: String })
   tag: string;
 
-  @Prop({ required: [false] })
+  @Prop({ required: false, type: String })
   state: string;
 }
 

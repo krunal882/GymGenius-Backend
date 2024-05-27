@@ -23,14 +23,6 @@ import { Response } from 'express';
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
-  @Get('/')
-  async getShowcaseProduct(
-    @Query('limit') limit?: number,
-    @Query('page') page?: number,
-  ) {
-    return await this.shopService.getShowcaseProduct(limit, page);
-  }
-
   @Get('/filtered')
   async getFilteredProduct(
     @Query('title') title: string,
