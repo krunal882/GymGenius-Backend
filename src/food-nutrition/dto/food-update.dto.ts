@@ -13,11 +13,7 @@ export class updateFoodDto {
   @IsString({ message: 'food item name must be a string' })
   name: string;
 
-  // @IsOptional()
-  // @IsString({ message: 'image name must be a string' })
-  // image: string;
-
-  @IsOptional()
+  @IsNotEmpty({ message: 'please provide food item image' })
   @IsString({ message: 'image must be a string' })
   cloudImg: string;
 
@@ -26,6 +22,7 @@ export class updateFoodDto {
   category: string;
 
   @IsNotEmpty({ message: 'please provide health benefits of food item ' })
+  @IsArray({ message: 'health benefits must be an array' })
   @IsString({ each: true, message: 'health benefits must be a string' })
   health_benefits: string[];
 

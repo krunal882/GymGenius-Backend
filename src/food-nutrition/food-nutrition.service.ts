@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotAcceptableException,
-  NotFoundException,
 } from '@nestjs/common';
 import { FoodNutrition } from './schema/food.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -57,12 +56,18 @@ export class FoodNutritionService {
   ) {}
 
   async getAllFood(limit: number, page: number): Promise<FoodNutrition[]> {
+    if (limit <= 0 || page <= 0) {
+      throw new BadRequestException('Limit and page must be positive numbers.');
+    }
     const skip = (page - 1) * limit;
 
     const food = await this.foodModel.find().skip(skip).limit(limit).exec();
     return food;
   }
   async getFilteredFood(queryParams: QueryParams): Promise<FoodNutrition[]> {
+    if (queryParams.limit <= 0 || queryParams.page <= 0) {
+      throw new BadRequestException('Limit and page must be positive numbers.');
+    }
     const filter: FoodFilter = {};
 
     const limit = queryParams.limit || 10;
@@ -80,70 +85,42 @@ export class FoodNutritionService {
         }
       }
     });
-    if (
-      queryParams.calories_min !== undefined ||
-      queryParams.calories_max !== undefined
-    ) {
-      filter['nutritions.calories'] = {};
-      if (queryParams.calories_min !== undefined) {
-        filter['nutritions.calories'].$gte = queryParams.calories_min;
+    ['calories', 'protein'].forEach((key) => {
+      if (
+        queryParams[`${key}_min`] !== undefined ||
+        queryParams[`${key}_max`] !== undefined
+      ) {
+        filter[`nutritions.${key}`] = {};
+        if (queryParams[`${key}_min`] !== undefined) {
+          filter[`nutritions.${key}`].$gte = queryParams[`${key}_min`];
+        }
+        if (queryParams[`${key}_max`] !== undefined) {
+          filter[`nutritions.${key}`].$lte = queryParams[`${key}_max`];
+        }
       }
-      if (queryParams.calories_max !== undefined) {
-        filter['nutritions.calories'].$lte = queryParams.calories_max;
-      }
-    }
-
-    if (
-      queryParams.protein_min !== undefined ||
-      queryParams.protein_max !== undefined
-    ) {
-      filter['nutritions.protein'] = {};
-      if (queryParams.protein_min !== undefined) {
-        filter['nutritions.protein'].$gte = queryParams.protein_min;
-      }
-      if (queryParams.protein_max !== undefined) {
-        filter['nutritions.protein'].$lte = queryParams.protein_max;
-      }
-    }
-
+    });
     const Food = await this.foodModel.find(filter).skip(skip).limit(limit);
     return Food;
   }
 
-  async addFoodItem(foodNutritionDto: foodNutritionDto): Promise<string> {
-    try {
-      await createOne(this.foodModel, foodNutritionDto);
-      return 'Successfully added foodItem';
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
+  async addFoodItem(foodNutritionDto: foodNutritionDto): Promise<void> {
+    await createOne(this.foodModel, foodNutritionDto);
   }
 
-  async deleteFoodItem(id: string): Promise<string> {
+  async deleteFoodItem(id: string): Promise<void> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
-    try {
-      const objectId = new mongoose.Types.ObjectId(id);
-      await deleteOne(this.foodModel, objectId);
-      return 'Successfully deleted food item';
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new NotFoundException('food item not found');
-      } else {
-        throw new BadRequestException(
-          'Status Failed!! Error while Delete operation',
-        );
-      }
-    }
+
+    const objectId = new mongoose.Types.ObjectId(id);
+    await deleteOne(this.foodModel, objectId);
   }
 
   async updateFoodItem(
     _id: mongoose.Types.ObjectId,
     updateData: updateFoodDto,
   ): Promise<FoodNutrition> {
-    const data = await updateOne(this.foodModel, _id, updateData);
-    return data;
+    return await updateOne(this.foodModel, _id, updateData);
   }
 }

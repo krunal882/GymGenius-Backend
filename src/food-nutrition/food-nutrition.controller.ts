@@ -13,6 +13,7 @@ import { foodNutritionDto } from './dto/food-nutrition.dto';
 import mongoose from 'mongoose';
 import { updateFoodDto } from './dto/food-update.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FoodNutrition } from './schema/food.schema';
 
 @Controller('foodNutrition')
 @UseGuards(AuthGuard)
@@ -21,8 +22,7 @@ export class FoodNutritionController {
 
   @Get('/')
   async getAllFood(@Query('limit') limit: number, @Query('page') page: number) {
-    const foodItem = await this.foodNutritionService.getAllFood(limit, page);
-    return foodItem;
+    return await this.foodNutritionService.getAllFood(limit, page);
   }
   @Get('/filtered')
   async getFilteredFood(
@@ -52,27 +52,23 @@ export class FoodNutritionController {
   }
 
   @Post('/addFoodItem')
-  async addFoodItem(
-    @Body() FoodNutritionDto: foodNutritionDto,
-  ): Promise<string> {
-    return this.foodNutritionService.addFoodItem(FoodNutritionDto);
+  async addFoodItem(@Body() FoodNutritionDto: foodNutritionDto): Promise<void> {
+    await this.foodNutritionService.addFoodItem(FoodNutritionDto);
   }
 
   @Delete('/deleteFoodItem')
-  async deleteFoodItem(@Query('id') id: string): Promise<string> {
+  async deleteFoodItem(@Query('id') id: string): Promise<void> {
     await this.foodNutritionService.deleteFoodItem(id);
-    return 'foodItem detail deleted successfully';
   }
 
   @Patch('/updateFoodItem')
   async updateDietPlan(
     @Query('id') _id: string,
     @Body() updateData: updateFoodDto,
-  ): Promise<string> {
-    await this.foodNutritionService.updateFoodItem(
+  ): Promise<FoodNutrition> {
+    return await this.foodNutritionService.updateFoodItem(
       new mongoose.Types.ObjectId(_id),
       updateData,
     );
-    return 'foodItem detail updated successfully';
   }
 }

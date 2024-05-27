@@ -11,9 +11,6 @@ export class foodNutritionDto {
   @IsString({ message: 'food item name must be a string' })
   name: string;
 
-  // @IsNotEmpty({ message: 'please provide food item image' })
-  // @IsString({ message: 'image name must be a string' })
-  // image: string;
   @IsNotEmpty({ message: 'please provide food item image' })
   @IsString({ message: 'image name must be a string' })
   cloudImg: string;

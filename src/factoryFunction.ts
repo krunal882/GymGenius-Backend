@@ -1,27 +1,20 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import mongoose from 'mongoose';
 
 type Model<T> = mongoose.Model<T>;
-
-export const getOne = async <T>(
-  model: Model<T>,
-  id: mongoose.Types.ObjectId,
-): Promise<T | null> => {
-  return model.findById(id);
-};
 
 export const getAll = async <T>(
   model: Model<T>,
   options?: any,
 ): Promise<T[] | null> => {
-  return model.find({ options });
+  return await model.find({ options });
 };
 
 export const createOne = async <T>(
   model: Model<T>,
   bodyData: any,
 ): Promise<T | null> => {
-  return model.create(bodyData);
+  return await model.create(bodyData);
 };
 
 export const updateOne = async <T>(
@@ -33,18 +26,24 @@ export const updateOne = async <T>(
   if (keys.includes('password') || keys.includes('passwordConfirm')) {
     throw new BadRequestException('You can not directly change password ');
   }
-  return model.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+  const updatedItem = await model.findByIdAndUpdate(
+    id,
+    { $set: updateData },
+    { new: true },
+  );
+  if (!updatedItem) {
+    throw new NotFoundException('Item not found');
+  }
+  return updatedItem;
 };
 
 export const deleteOne = async <T>(
   model: Model<T>,
   id: mongoose.Types.ObjectId,
-): Promise<string | null> => {
-  const deleteItem = await model.findById(id);
+): Promise<void> => {
+  const deleteItem = await model.findByIdAndDelete(id);
   if (!deleteItem)
     throw new BadRequestException(
       'Status Failed!! Error while Delete operation',
     );
-
-  return 'Delete Operation done successfully';
 };
