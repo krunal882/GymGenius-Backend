@@ -5,11 +5,12 @@ import { Document, SchemaTypes } from 'mongoose';
 export class Bookmark extends Document {
   @Prop({
     required: [true, 'Please provide user Id'],
+    type: String,
   })
   userId: string;
 
   @Prop({
-    required: [true, 'Please provide user Id'],
+    required: [true, 'Please provide Item'],
     type: SchemaTypes.Mixed,
   })
   item: {

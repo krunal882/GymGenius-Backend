@@ -10,23 +10,12 @@ export class BookmarkController {
 
   @Post('/addBookmark')
   async addBookmark(@Body() bookmarkDto: bookmark) {
-    try {
-      return await this.bookmarkService.addBookmark(bookmarkDto);
-    } catch (error) {
-      console.error('Error adding bookmark:', error);
-      return 'Failed to bookmark';
-    }
+    return await this.bookmarkService.addBookmark(bookmarkDto);
   }
 
   @Post('/undoBookmark')
   async undoBookmark(@Body() bookmarkDto: bookmark) {
-    try {
-      await this.bookmarkService.undoBookmark(bookmarkDto);
-      return 'Bookmark undone successfully';
-    } catch (error) {
-      console.error('Error undoing bookmark:', error);
-      return 'Failed to undo bookmark';
-    }
+    return await this.bookmarkService.undoBookmark(bookmarkDto);
   }
   @Get('/getBookmarked')
   async getBookmarked(@Query('userId') userId: string): Promise<bookmark[]> {
