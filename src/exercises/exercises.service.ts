@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotAcceptableException,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Exercise } from './schema/exercise.schema';
@@ -46,6 +45,10 @@ export class ExercisesService {
   ) {}
 
   async getAllExercises(limit: number, page: number): Promise<Exercise[]> {
+    if (limit <= 0 || page <= 0) {
+      throw new BadRequestException('Limit and page must be positive numbers.');
+    }
+
     const skip = (page - 1) * limit;
 
     const exercises = await this.exerciseModel
@@ -58,9 +61,12 @@ export class ExercisesService {
 
   async getFilteredExercise(queryParams: QueryParams): Promise<Exercise[]> {
     const filter: ExerciseFilter = {};
-
     const limit = queryParams.limit || 10;
     const page = queryParams.page || 1;
+
+    if (limit <= 0 || page <= 0) {
+      throw new BadRequestException('Limit and page must be positive numbers.');
+    }
     const skip = (page - 1) * limit;
 
     const filterableKeys = [
@@ -90,34 +96,19 @@ export class ExercisesService {
       .limit(limit);
     return exercises;
   }
-  async createExercise(exerciseDto: exerciseDto): Promise<string> {
-    try {
-      await createOne(this.exerciseModel, exerciseDto);
-      return 'Successfully created exercise';
-    } catch (error) {
-      throw new BadRequestException('Error while creating exercise');
-    }
+  async createExercise(exerciseDto: exerciseDto): Promise<Exercise> {
+    return await createOne(this.exerciseModel, exerciseDto);
   }
 
-  async deleteExercise(id: string): Promise<string> {
+  async deleteExercise(id: string): Promise<void> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
-    try {
-      const objectId = new mongoose.Types.ObjectId(id);
 
-      await deleteOne(this.exerciseModel, objectId);
-      return 'Successfully deleted exercise';
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new NotFoundException('exercise not found');
-      } else {
-        throw new BadRequestException(
-          'Status Failed!! Error while Delete operation',
-        );
-      }
-    }
+    const objectId = new mongoose.Types.ObjectId(id);
+
+    await deleteOne(this.exerciseModel, objectId);
   }
 
   async updateExercise(

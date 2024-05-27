@@ -1,51 +1,67 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayMinSize,
+  ArrayNotEmpty,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ForceType, ExerciseLevel } from '../../utils/role.enum';
 import { Prop } from '@nestjs/mongoose';
 export class exerciseDto {
-  @IsNotEmpty({ message: 'please provide exercise name' })
+  @IsNotEmpty({ message: 'Please provide exercise name' })
   @IsString({ message: 'Exercise name must be a string' })
   name: string;
 
-  @IsNotEmpty({ message: 'please provide force type of exercise' })
-  @IsString({ message: 'force name must be a string' })
+  @IsNotEmpty({ message: 'Please provide force type of exercise' })
+  @IsString({ message: 'Force name must be a string' })
   @IsEnum(ForceType, { message: 'Force must be one of: push, pull, static' })
   force: string;
 
   @Prop({ default: ExerciseLevel.INTERMEDIATE })
-  @IsNotEmpty({ message: 'please provide level of exercise' })
-  @IsString({ message: 'level  must be a string' })
+  @IsNotEmpty({ message: 'Please provide level of exercise' })
+  @IsString({ message: 'Level must be a string' })
   @IsEnum(ExerciseLevel, {
-    message: 'Exercise level must be one of: beginner,intermediate,expert',
+    message: 'Exercise level must be one of: beginner, intermediate, expert',
   })
   level: string;
 
-  @IsNotEmpty({ message: 'please provide image exercise' })
-  @IsString({ message: 'image  must be a string' })
+  @IsNotEmpty({ message: 'Please provide image of exercise' })
+  @IsString({ message: 'Image must be a string' })
   cloudImg: string;
 
   @IsOptional()
-  @IsString({ message: 'mechanic must be a string' })
-  mechanic: string;
+  @IsString({ message: 'Mechanic must be a string' })
+  mechanic?: string;
 
   @IsNotEmpty({
-    message: 'please provide equipment name needed to perform exrecise',
+    message: 'Please provide equipment name needed to perform exercise',
   })
   @IsString({ message: 'Equipment name must be a string' })
   equipment: string;
 
-  @IsNotEmpty({ message: 'please provide Category of exercise' })
+  @IsNotEmpty({ message: 'Please provide category of exercise' })
   @IsString({ message: 'Category name must be a string' })
   category: string;
 
-  @IsNotEmpty({ message: 'Please provide target primary muscle of exercise' })
+  @ArrayNotEmpty({
+    message: 'Please provide at least one primary muscle for the exercise',
+  })
+  @ArrayMinSize(1, {
+    message: 'Please provide at least one primary muscle for the exercise',
+  })
   @IsString({ each: true, message: 'Each primary muscle must be a string' })
   primaryMuscles: string[];
 
   @IsOptional()
+  @ArrayNotEmpty({ message: 'Please provide valid secondary muscles' })
   @IsString({ each: true, message: 'Each secondary muscle must be a string' })
-  secondaryMuscles: string[];
+  secondaryMuscles?: string[];
 
-  @IsNotEmpty({ message: 'Please provide instructions for the exercise' })
+  @ArrayNotEmpty({ message: 'Please provide instructions for the exercise' })
+  @ArrayMinSize(1, {
+    message: 'Please provide at least one instruction for the exercise',
+  })
   @IsString({ each: true, message: 'Each instruction must be a string' })
   instructions: string[];
 }

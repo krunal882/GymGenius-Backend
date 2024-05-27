@@ -13,6 +13,7 @@ import { exerciseDto } from './dto/exercise.dto';
 import mongoose from 'mongoose';
 import { updateExercise } from './dto/exercise-update.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Exercise } from './schema/exercise.schema';
 
 @Controller('exercises')
 @UseGuards(AuthGuard)
@@ -24,8 +25,7 @@ export class ExercisesController {
     @Query('limit') limit: number,
     @Query('page') page: number,
   ) {
-    const exercises = await this.exerciseService.getAllExercises(limit, page);
-    return exercises;
+    return await this.exerciseService.getAllExercises(limit, page);
   }
 
   @Get('/filtered')
@@ -57,26 +57,23 @@ export class ExercisesController {
   }
 
   @Post('/addExercise')
-  async createExercise(@Body() ExerciseDto: exerciseDto): Promise<string> {
-    await this.exerciseService.createExercise(ExerciseDto);
-    return 'exercise added successfully';
+  async createExercise(@Body() ExerciseDto: exerciseDto): Promise<Exercise> {
+    return await this.exerciseService.createExercise(ExerciseDto);
   }
 
   @Delete('/deleteExercise')
-  async deleteExercise(@Query('id') id: string): Promise<string> {
+  async deleteExercise(@Query('id') id: string): Promise<void> {
     this.exerciseService.deleteExercise(id);
-    return 'exercise deleted successfully';
   }
 
   @Patch('/updateExercise')
   async updateDietPlan(
     @Query('id') _id: string,
     @Body() updateData: updateExercise,
-  ): Promise<string> {
-    await this.exerciseService.updateExercise(
+  ): Promise<Exercise> {
+    return await this.exerciseService.updateExercise(
       new mongoose.Types.ObjectId(_id),
       updateData,
     );
-    return 'exercise updated successfully';
   }
 }
