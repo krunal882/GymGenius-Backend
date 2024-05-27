@@ -13,6 +13,7 @@ import { YogaPoseDto } from './dto/yoga-pose.dto';
 import mongoose from 'mongoose';
 import { updateYogaPoseDto } from './dto/yoga-update.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { YogaPose } from './schema/yoga.schema';
 
 @Controller('yoga-poses')
 @UseGuards(AuthGuard)
@@ -48,15 +49,13 @@ export class YogaController {
   }
 
   @Post('/addYoga')
-  async addYogaPose(@Body() yogaPoseDto: YogaPoseDto): Promise<string> {
-    await this.yogaService.addYogaPose(yogaPoseDto);
-    return 'yoga pose successfully added';
+  async addYogaPose(@Body() yogaPoseDto: YogaPoseDto): Promise<YogaPose> {
+    return await this.yogaService.addYogaPose(yogaPoseDto);
   }
 
   @Delete('/deleteYoga')
-  async deleteYogaPose(@Query('id') id: string): Promise<string> {
+  async deleteYogaPose(@Query('id') id: string): Promise<void> {
     await this.yogaService.deleteYogaPose(id);
-    return 'yoga pose successfully deleted';
   }
 
   @Patch('/updateYoga')

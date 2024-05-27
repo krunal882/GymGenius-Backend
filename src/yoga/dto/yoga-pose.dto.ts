@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class YogaPoseDto {
   @IsNotEmpty({ message: 'please provide yoga-pose name' })
@@ -13,6 +13,7 @@ export class YogaPoseDto {
   @IsString({ message: 'english name must be a string' })
   english_name: string;
 
+  @IsOptional()
   @IsString({ message: 'adapted sanskrit name must be a string' })
   sanskrit_name_adapted: string;
 

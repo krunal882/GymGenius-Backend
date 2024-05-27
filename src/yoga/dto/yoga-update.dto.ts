@@ -15,15 +15,15 @@ export class updateYogaPoseDto {
 
   @IsOptional()
   @IsString({ message: 'english name must be a string' })
-  sanskrit_name_adapted: string;
+  sanskrit_name_adapted?: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'please provide sanskrit name of yoga' })
   @IsString({ message: 'sanskrit name must be a string' })
   sanskrit_name: string;
 
   @IsOptional()
   @IsString({ message: 'translation name must be a string' })
-  translation_name: string;
+  translation_name?: string;
 
   @IsNotEmpty({ message: 'please provide description of yoga' })
   @IsString({ message: 'pose description must be a string' })
@@ -33,7 +33,7 @@ export class updateYogaPoseDto {
   @IsString({ message: 'pose benefits must be a string' })
   pose_benefits: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'please provide image of yoga' })
   @IsString({ message: 'url must be a string' })
   url_png: string;
 }

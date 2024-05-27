@@ -26,6 +26,9 @@ export class YogaService {
   ) {}
 
   async getAllYogaPoses(limit: number, page: number): Promise<YogaPose[]> {
+    if (limit <= 0 || page <= 0) {
+      throw new BadRequestException('Limit and page must be positive numbers.');
+    }
     const skip = (page - 1) * limit;
     const yoga = await this.yogaModel.find().skip(skip).limit(limit).exec();
     return yoga;
@@ -55,38 +58,30 @@ export class YogaService {
     return yogaPoses;
   }
 
-  async addYogaPose(yogaPoseDto: YogaPoseDto): Promise<string> {
-    try {
-      await createOne(this.yogaModel, yogaPoseDto);
-      return 'Successfully added yoga-pose';
-    } catch (error) {
-      throw new BadRequestException('Error while creating yoga-pose');
-    }
+  async addYogaPose(yogaPoseDto: YogaPoseDto): Promise<YogaPose> {
+    return await createOne(this.yogaModel, yogaPoseDto);
   }
-  async deleteYogaPose(id: string): Promise<string> {
+  async deleteYogaPose(id: string): Promise<void> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
       throw new NotAcceptableException('Invalid ID');
     }
-    try {
-      const objectId = new mongoose.Types.ObjectId(id);
-      await deleteOne(this.yogaModel, objectId);
-      return 'Successfully deleted yoga pose';
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new NotFoundException('yoga-pose not found');
-      } else {
-        throw new BadRequestException(
-          'Status Failed!! Error while Delete operation',
-        );
-      }
+    const existingYogaPose = await this.yogaModel.findById(id);
+    if (!existingYogaPose) {
+      throw new NotFoundException('Yoga pose not found');
     }
+    const objectId = new mongoose.Types.ObjectId(id);
+    await deleteOne(this.yogaModel, objectId);
   }
 
   async updateYogaPose(
     id: mongoose.Types.ObjectId,
     updateData: updateYogaPoseDto,
   ): Promise<YogaPose> {
+    const existingYogaPose = await this.yogaModel.findById(id);
+    if (!existingYogaPose) {
+      throw new NotFoundException('Yoga pose not found');
+    }
     return await updateOne(this.yogaModel, id, updateData);
   }
 }
