@@ -33,7 +33,7 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
     @Res() res: Response,
   ): Promise<void> {
-    return this.authService.signup(createUserDto, res);
+    return await this.authService.signup(createUserDto, res);
   }
 
   @Post('/login')
@@ -80,7 +80,7 @@ export class AuthController {
     @Query('number') number: string,
     @Query('role') role: string,
     @Query('state') state: string,
-    @Query('id') _id: string,
+    @Query('_id') _id: string,
   ) {
     const queryParams = {
       name,
@@ -110,12 +110,6 @@ export class AuthController {
   ): Promise<string> {
     const { userId, imgUrl } = body;
     return await this.authService.uploadImage(userId, imgUrl);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('/getImg')
-  getFile(@Res() res: Response, @Body() file: FileParams) {
-    res.sendFile(path.join(__dirname, '../../profilePic/' + file.fileName));
   }
 
   @UseGuards(AuthGuard)

@@ -4,28 +4,28 @@ import * as bcrypt from 'bcryptjs';
 
 @Schema()
 export class User extends Document {
-  @Prop()
+  @Prop({ required: true })
   name: string;
 
-  @Prop()
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop()
+  @Prop({ required: true, min: 12 })
   age: number;
 
-  @Prop()
+  @Prop({ required: true })
+  number: string;
+
+  @Prop({ default: 'user' })
   role: string;
 
   @Prop()
   src: string;
 
-  @Prop()
-  number: string;
-
-  @Prop()
+  @Prop({ required: true, select: false })
   password: string;
 
-  @Prop()
+  @Prop({ default: 'active' })
   state: string;
 
   @Prop()
@@ -34,7 +34,7 @@ export class User extends Document {
   @Prop()
   confirmPassword: string;
 
-  @Prop()
+  @Prop({ select: false })
   resetPasswordToken: string;
 
   @Prop()

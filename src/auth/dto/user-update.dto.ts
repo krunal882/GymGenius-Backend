@@ -9,34 +9,34 @@ import {
 import { Role } from 'src/utils/role.enum';
 
 export class updateUser {
-  @IsNotEmpty()
-  @IsString({ message: 'user-name must be a string' })
+  @IsNotEmpty({ message: 'User name is required' })
+  @IsString({ message: 'User name must be a string' })
   name: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Email is required' })
   @IsEmail({}, { message: 'Invalid email format' })
-  @IsString({ message: 'e-mail must be a string' })
+  @IsString({ message: 'Email must be a string' })
   email: string;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({ message: 'Age is required' })
+  @IsNumber({}, { message: 'Age must be a number' })
   age: number;
 
-  @IsNotEmpty()
-  @IsString({ message: 'user number must be a string' })
+  @IsNotEmpty({ message: 'Phone number is required' })
+  @IsString({ message: 'Phone number must be a string' })
   number: string;
 
   @IsOptional()
-  @IsEnum(Role)
-  @IsString({ message: 'role must be a string' })
-  role: string;
+  @IsString({ message: 'Role must be a string' })
+  @IsEnum(Role, { message: 'Invalid role' })
+  role?: string;
 
   @IsOptional()
-  @IsNotEmpty()
-  @IsString({ message: 'user profile pic must be a string' })
-  src: string;
+  @IsNotEmpty({ message: 'Profile image is required' })
+  @IsString({ message: 'Profile image name must be a string' })
+  src?: string;
 
   @IsOptional()
-  @IsString()
-  state: string;
+  @IsString({ message: 'State must be a string' })
+  state?: string;
 }

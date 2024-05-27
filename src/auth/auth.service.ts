@@ -27,7 +27,7 @@ interface QueryParams {
   role?: string;
   state?: string;
   number?: string;
-  id?: string;
+  _id?: string;
 }
 
 @Injectable()
@@ -70,7 +70,6 @@ export class AuthService {
     const user = await this.UserModel.findOne({
       email: loginUserDto.email,
     }).select('+password');
-
     if (
       !user ||
       !(await await bcrypt.compare(loginUserDto.password, user.password))
@@ -95,6 +94,9 @@ export class AuthService {
     page: number,
     limit: number,
   ): Promise<{ total: number; users: User[] }> {
+    if (page <= 0 || limit <= 0) {
+      throw new BadRequestException('Page and limit must be positive numbers');
+    }
     const skip = (page - 1) * limit;
     const users = await this.UserModel.find()
       .select('_id name email age number role state')
@@ -107,8 +109,7 @@ export class AuthService {
 
   async getFilteredUser(queryParams: QueryParams): Promise<User[]> {
     const filter: any = {};
-
-    const filterableKeys = [
+    const filterableKeys: (keyof QueryParams)[] = [
       'name',
       'email',
       'age',
@@ -122,13 +123,19 @@ export class AuthService {
         filter[key] = queryParams[key];
       }
     });
-    return await this.UserModel.find(filter).select('-password -_id -state');
+    const users = await this.UserModel.find(filter).select(
+      '-password -_id -state',
+    );
+    if (!users || users.length === 0) {
+      throw new BadRequestException('No users found with the given criteria');
+    }
+    return users;
   }
 
   async forgotPassword(email: string): Promise<string> {
     const user = await this.UserModel.findOne({ email });
     if (!user) {
-      throw new BadRequestException('User with this email does not exist');
+      throw new NotFoundException('User with this email does not exist');
     }
 
     const resetToken = await this.generateResetToken(user);
@@ -156,10 +163,16 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('invalid token or token expired');
     }
+
+    if (newPassword.trim() !== newConfirmPassword.trim()) {
+      throw new BadRequestException(
+        'New password and confirm password do not match',
+      );
+    }
+
     user.password = newPassword;
-    user.confirmPassword = newConfirmPassword;
     await user.save();
-    return 'password changed successfully : new password:' + user.password;
+    return 'password changed successfully';
   }
 
   private async generateResetToken(
@@ -187,68 +200,52 @@ export class AuthService {
     }
 
     const user = await this.UserModel.create(createUserDto);
-    res.json(user);
+    const userResponse = { ...user.toJSON(), password: undefined };
+    res.json(userResponse);
   }
 
   async deleteUser(id: mongoose.Types.ObjectId, role: string): Promise<string> {
-    const user = await this.UserModel.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new NotAcceptableException('Invalid ID');
+    }
 
+    const user = await this.UserModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     if (role === 'owner') {
       await deleteOne(this.UserModel, id);
       return 'Successfully deleted user';
     } else if (role === 'user') {
-      const isValid = mongoose.Types.ObjectId.isValid(id);
-      if (!isValid) {
-        throw new NotAcceptableException('Invalid ID');
-      }
-      try {
-        if (!user) {
-          throw new NotFoundException('User not found');
-        }
-        user.state = 'inactive';
-        user.deletionTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 day deletion time
-        await user.save();
-        return 'User deletion scheduled';
-      } catch (error) {
-        if (error instanceof BadRequestException) {
-          throw new NotFoundException('user not found');
-        } else {
-          throw new BadRequestException(
-            'Status Failed!! Error while Delete operation',
-          );
-        }
-      }
+      user.state = 'inactive';
+      user.deletionTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 day deletion time
+      await user.save();
+      return 'your Account deleted successfully';
     }
   }
 
   @Cron('0 0 * * *') // Runs every day at midnight
   async deleteInactiveUsers() {
-    try {
-      const deletionTimeThreshold = new Date(Date.now());
-      const result = await this.UserModel.deleteMany({
-        state: 'inactive',
-        deletionTime: { $lte: deletionTimeThreshold },
-      });
-
-      return `${result.deletedCount} inactive users deleted`;
-    } catch (error) {
-      throw new Error('Error deleting inactive users: ' + error.message);
-    }
+    const deletionTimeThreshold = new Date(Date.now());
+    const result = await this.UserModel.deleteMany({
+      state: 'inactive',
+      deletionTime: { $lte: deletionTimeThreshold },
+    });
+    return `${result.deletedCount} inactive users deleted`;
   }
 
   async uploadImage(userId: string, imgUrl: string): Promise<string> {
-    try {
-      const user = await this.UserModel.findById(userId);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      user.src = imgUrl;
-      await user.save();
-
-      return user.src;
-    } catch (error) {
-      console.log(error);
+    if (!userId || !imgUrl) {
+      throw new BadRequestException('User ID and image URL must be provided');
     }
+    const user = await this.UserModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.src = imgUrl;
+    await user.save();
+
+    return user.src;
   }
 
   async updateUser(
