@@ -1,3 +1,4 @@
+// Import necessary modules and components from NestJS and other libraries
 import { Module } from '@nestjs/common';
 import { ShopController } from './shop.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,6 +14,7 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [
     AuthModule,
     MongooseModule.forFeature([
+      // Define Mongoose models for Product and History (Cart)
       { name: 'Product', schema: ProductSchema },
       { name: 'History', schema: CartSchema },
     ]),

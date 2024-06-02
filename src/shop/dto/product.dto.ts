@@ -1,3 +1,4 @@
+// Import necessary decorators from class-validator to enforce validation rules
 import {
   IsEnum,
   IsNotEmpty,
@@ -15,7 +16,7 @@ export class ProductDto {
   @IsString({ message: 'image name must be a string' })
   cloudImg: string;
 
-  @IsOptional()
+  @IsOptional() // product brand field is optional
   @IsString({ message: 'brand name must be a string' })
   brand?: string;
 
@@ -27,26 +28,26 @@ export class ProductDto {
   @IsNumber({}, { message: 'product price must be a number' })
   price: number;
 
-  @IsOptional()
+  @IsOptional() // products original price field is optional
   @IsString({ message: 'original price must be a string' })
   original_price?: string;
 
-  @IsOptional()
+  @IsOptional() // off field is optional
   @IsString({ message: 'off price must be a string' })
   off?: string;
 
-  @IsOptional()
+  @IsOptional() // product tag field is optional
   @IsString({ message: 'product tag must be a string' })
   tag?: string;
 
-  @IsOptional()
+  @IsOptional() // state of product is optional
   @IsEnum(['active', 'inactive'], {
     message: 'product state must be active or de-active',
   })
   @IsString({ message: 'product tag must be a string' })
   state?: string;
 
-  @IsOptional()
+  @IsOptional() // quantity of product is optional
   @IsString({ message: 'product quantity' })
   quantity?: string;
 }

@@ -5,7 +5,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
-} from 'class-validator';
+} from 'class-validator'; // Import validation decorators
 import { RecipeDto } from '../dto/food-recipe.dto';
 
 export class updateFoodDto {
@@ -34,11 +34,11 @@ export class updateFoodDto {
   @IsString({ each: true, message: 'Each culinary use must be a string' })
   culinary_uses: string;
 
-  @IsOptional()
+  @IsOptional() // varieties are optional value
   @IsString({ each: true, message: 'Each variety must be a string' })
   varieties: string;
 
-  @IsOptional()
+  @IsOptional() // fun facts are optional
   @IsString({
     each: true,
     message: 'Each fun fact and trivia must be a string',

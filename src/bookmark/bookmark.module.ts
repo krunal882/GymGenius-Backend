@@ -6,6 +6,7 @@ import { BookmarkSchema } from './schema/bookmark.schema';
 
 @Module({
   imports: [
+    // Import the BookmarkSchema into MongooseModule
     MongooseModule.forFeature([{ name: 'Bookmark', schema: BookmarkSchema }]),
   ],
   controllers: [BookmarkController],

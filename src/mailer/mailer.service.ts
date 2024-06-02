@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+// Import necessary modules and components from NestJS and other libraries
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { sendEmailDto } from './dto/mail.dto';
 
 @Injectable()
 export class MailerService {
+  // Inject ConfigService to access configuration settings
   constructor(private readonly configService: ConfigService) {}
 
+  // Method to create and configure the Nodemailer transport
   private mailTransport() {
     return nodemailer.createTransport({
       service: 'gmail',
@@ -20,6 +23,7 @@ export class MailerService {
     });
   }
 
+  // Method to send an email
   async sendEmail(dto: sendEmailDto) {
     const { recipients, subject, html } = dto;
     const transport = this.mailTransport();
@@ -35,7 +39,7 @@ export class MailerService {
       const result = await transport.sendMail(options);
       return result;
     } catch (error) {
-      throw error;
+      throw new BadRequestException('error in sending mail');
     }
   }
 }

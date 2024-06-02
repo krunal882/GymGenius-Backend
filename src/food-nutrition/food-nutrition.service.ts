@@ -22,12 +22,13 @@ interface nutrition {
   };
 }
 
-interface QueryParams {
+export interface QueryParams {
   category?: string;
   name?: string;
   calories?: number;
   protein?: number;
   _id?: string;
+  nutritionId?: string;
   calories_min?: number;
   calories_max?: number;
   protein_min?: number;
@@ -61,7 +62,7 @@ export class FoodNutritionService {
     }
     const skip = (page - 1) * limit;
 
-    const food = await this.foodModel.find().skip(skip).limit(limit).exec();
+    const food = await this.foodModel.find().skip(skip).limit(limit);
     return food;
   }
   async getFilteredFood(queryParams: QueryParams): Promise<FoodNutrition[]> {

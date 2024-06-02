@@ -1,3 +1,4 @@
+// Import necessary decorators, modules, and classes from NestJS and other libraries
 import {
   BadRequestException,
   Injectable,
@@ -15,7 +16,8 @@ import { updateProductDto } from './dto/update-product.dto';
 import { AuthService } from './../auth/auth.service';
 import Stripe from 'stripe';
 
-interface QueryParams {
+// interface for query parameters
+export interface QueryParams {
   title?: string;
   category?: string;
   id?: string;
@@ -32,6 +34,8 @@ interface QueryParams {
 @Injectable()
 export class ShopService {
   private stripe;
+
+  //Inject dependencies and initialize Stripe with a secret key
   constructor(
     @InjectModel('Product') private productModel: mongoose.Model<Product>,
     @InjectModel('History') private historyModel: mongoose.Model<History>,
@@ -42,6 +46,7 @@ export class ShopService {
     );
   }
 
+  // Retrieve cart products for a specific user
   async getCartProduct(userId: string): Promise<History[]> {
     const cartProducts = await this.historyModel.find({ userId });
     if (!cartProducts || cartProducts.length === 0) {
@@ -51,6 +56,7 @@ export class ShopService {
     return cartProducts;
   }
 
+  // Retrieve filtered products based on query parameters
   async getFilteredProduct(queryParams: QueryParams): Promise<Product[]> {
     const filter: any = { state: 'active' };
 
@@ -103,6 +109,7 @@ export class ShopService {
     return products;
   }
 
+  // Retrieve all orders from the history
   async getAllOrders(): Promise<any[]> {
     const orders = await this.historyModel.find();
     if (orders.length === 0) {
@@ -147,6 +154,7 @@ export class ShopService {
 
     return data;
   }
+  // Add a new product to the product model
   async addProduct(productDto: ProductDto): Promise<string> {
     const existingProduct = await this.productModel.findOne({
       title: productDto.title,
@@ -162,6 +170,7 @@ export class ShopService {
     return 'Successfully added product';
   }
 
+  // Add a product to the cart
   async addCartProduct(cartDto: cartDto): Promise<string> {
     const existingCart = await this.historyModel.findOne({
       userId: cartDto.userId,
@@ -180,6 +189,7 @@ export class ShopService {
     return 'Successfully added product to cart';
   }
 
+  // Remove a product from the cart
   async removeCart(userId: string, productId: string): Promise<string> {
     if (!userId || !productId) {
       throw new BadRequestException('Invalid input parameters');
@@ -201,8 +211,9 @@ export class ShopService {
 
     await cart.save();
 
-    return 'Successfully removed product from cart';
+    return 'product removed from cart Successfully';
   }
+  // Update the status of a product in the cart
   async updateCart(
     userId: string,
     productId: string | string[],
@@ -232,6 +243,7 @@ export class ShopService {
     return 'Successfully updated product status in cart';
   }
 
+  // Remove a product from the product model
   async removeProduct(id: string): Promise<string> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
@@ -242,6 +254,7 @@ export class ShopService {
     return 'Successfully removed product';
   }
 
+  // Update product details
   async updateProduct(
     id: mongoose.Types.ObjectId,
     updateData: updateProductDto,
@@ -263,6 +276,7 @@ export class ShopService {
     return updatedProduct;
   }
 
+  // Process a product purchase
   async productPurchase(
     price: number,
     quantity: string,
@@ -317,15 +331,15 @@ export class ShopService {
     });
     return session;
   }
+  // Handle Stripe webhook events
   async handleStripeWebhook(event: any) {
     if (!event || !event.type) {
       throw new BadRequestException('Invalid webhook event');
     }
-
     switch (event.type) {
       case 'checkout.session.completed':
         const session = event.data.object;
-        let { productId } = session.metadata;
+        const { productId } = session.metadata;
         const { userId } = session.metadata;
         const paymentId = session.payment_intent as string;
         if (!productId || !userId || !paymentId) {
@@ -347,14 +361,25 @@ export class ShopService {
         throw new BadRequestException('Unsupported event type');
     }
   }
+  // Process a refund for a payment
   async refundPayment(paymentId: string): Promise<Stripe.Refund> {
     if (!paymentId) {
       throw new BadRequestException('Payment ID is required');
     }
-
     const refund = await this.stripe.refunds.create({
       payment_intent: paymentId,
     });
+    if (refund.status === 'succeeded') {
+      const deleteResult = await this.historyModel.updateOne(
+        { 'product.paymentId': paymentId },
+        { $pull: { product: { paymentId: paymentId } } },
+      );
+      if (deleteResult.modifiedCount === 0) {
+        throw new NotFoundException(
+          `No product found with paymentId: ${paymentId}`,
+        );
+      }
+    }
     return refund;
   }
 }

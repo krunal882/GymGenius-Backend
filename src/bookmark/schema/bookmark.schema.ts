@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, SchemaTypes } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'; // Import necessary decorators and utilities from '@nestjs/mongoose'
+import { Document, SchemaTypes } from 'mongoose'; // Import Document and SchemaTypes from 'mongoose'
 
 @Schema()
 export class Bookmark extends Document {
@@ -11,7 +11,7 @@ export class Bookmark extends Document {
 
   @Prop({
     required: [true, 'Please provide Item'],
-    type: SchemaTypes.Mixed,
+    type: SchemaTypes.Mixed, // Define the type of the property as Mixed, allowing for various data types
   })
   item: {
     exercise?: string[];
@@ -20,5 +20,5 @@ export class Bookmark extends Document {
     nutrition?: string[];
   };
 }
-
+// Create a mongoose schema for the Bookmark class using SchemaFactory
 export const BookmarkSchema = SchemaFactory.createForClass(Bookmark);

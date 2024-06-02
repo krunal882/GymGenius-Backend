@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator'; // Import validation decorators
 
 export class RecipeDto {
   @IsNotEmpty({ message: 'Please provide recipe name' })

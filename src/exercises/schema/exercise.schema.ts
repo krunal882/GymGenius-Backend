@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'; // Import decorators and schema factory from NestJS Mongoose
 import { Document } from 'mongoose';
-import { ForceType, ExerciseLevel } from '../../utils/role.enum';
+import { ForceType, ExerciseLevel } from '../../utils/role.enum'; // Import enums for ForceType and ExerciseLevel
 
 @Schema()
 export class Exercise extends Document {
@@ -25,8 +25,8 @@ export class Exercise extends Document {
   cloudImg: string;
 
   @Prop({
-    enum: [ExerciseLevel],
-    default: 'intermediate',
+    enum: [ExerciseLevel], // Allowed values are from the ExerciseLevel enum
+    default: 'intermediate', // Default value is 'intermediate'
     type: String,
   })
   level: string;
@@ -52,7 +52,7 @@ export class Exercise extends Document {
   })
   primaryMuscles: string[];
 
-  @Prop({ type: String })
+  @Prop({ type: [String] })
   secondaryMuscles: string[];
 
   @Prop({
@@ -62,4 +62,5 @@ export class Exercise extends Document {
   instructions: string[];
 }
 
+// Create Exercise schema using SchemaFactory
 export const ExerciseSchema = SchemaFactory.createForClass(Exercise);

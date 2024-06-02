@@ -1,3 +1,4 @@
+// Import validation decorators
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class updateYogaPoseDto {
@@ -13,7 +14,7 @@ export class updateYogaPoseDto {
   @IsString({ message: 'english name must be a string' })
   english_name: string;
 
-  @IsOptional()
+  @IsOptional() // optional field
   @IsString({ message: 'english name must be a string' })
   sanskrit_name_adapted?: string;
 
@@ -21,7 +22,7 @@ export class updateYogaPoseDto {
   @IsString({ message: 'sanskrit name must be a string' })
   sanskrit_name: string;
 
-  @IsOptional()
+  @IsOptional() // optional field
   @IsString({ message: 'translation name must be a string' })
   translation_name?: string;
 

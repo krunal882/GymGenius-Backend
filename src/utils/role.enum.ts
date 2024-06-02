@@ -8,11 +8,14 @@ export enum State {
   Inactive = 'inactive',
 }
 
+// exercise force type
 export enum ForceType {
   PUSH = 'push',
   PULL = 'pull',
   STATIC = 'static',
 }
+
+//exercise type
 export enum ExerciseType {
   STRENGTH = 'strength',
   CARDIO = 'cardio',
@@ -21,6 +24,7 @@ export enum ExerciseType {
   STRETCHING = 'stretching',
 }
 
+// muscle type for exercise
 export enum MuscleType {
   BICEPS = 'biceps',
   CALVES = 'calves',
@@ -41,6 +45,7 @@ export enum MuscleType {
   GLUTES = 'glutes',
 }
 
+// difficulty of exercise
 export enum ExerciseLevel {
   BEGINNER = 'beginner',
   INTERMEDIATE = 'intermediate',

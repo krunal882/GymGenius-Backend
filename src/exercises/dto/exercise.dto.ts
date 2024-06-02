@@ -5,9 +5,9 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-} from 'class-validator';
-import { ForceType, ExerciseLevel } from '../../utils/role.enum';
-import { Prop } from '@nestjs/mongoose';
+} from 'class-validator'; // Import validation decorators
+import { ForceType, ExerciseLevel } from '../../utils/role.enum'; // Import enums for ForceType and ExerciseLevel
+
 export class exerciseDto {
   @IsNotEmpty({ message: 'Please provide exercise name' })
   @IsString({ message: 'Exercise name must be a string' })
@@ -18,7 +18,6 @@ export class exerciseDto {
   @IsEnum(ForceType, { message: 'Force must be one of: push, pull, static' })
   force: string;
 
-  @Prop({ default: ExerciseLevel.INTERMEDIATE })
   @IsNotEmpty({ message: 'Please provide level of exercise' })
   @IsString({ message: 'Level must be a string' })
   @IsEnum(ExerciseLevel, {
@@ -30,7 +29,7 @@ export class exerciseDto {
   @IsString({ message: 'Image must be a string' })
   cloudImg: string;
 
-  @IsOptional()
+  @IsOptional() // 'mechanic' is optional
   @IsString({ message: 'Mechanic must be a string' })
   mechanic?: string;
 
@@ -53,7 +52,7 @@ export class exerciseDto {
   @IsString({ each: true, message: 'Each primary muscle must be a string' })
   primaryMuscles: string[];
 
-  @IsOptional()
+  @IsOptional() // 'secondaryMuscles' is optional
   @ArrayNotEmpty({ message: 'Please provide valid secondary muscles' })
   @IsString({ each: true, message: 'Each secondary muscle must be a string' })
   secondaryMuscles?: string[];

@@ -1,5 +1,5 @@
+// Import necessary decorators, modules, and classes from NestJS and other libraries
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,7 +10,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ShopService } from './shop.service';
+import { QueryParams, ShopService } from './shop.service';
 import { ProductDto } from './dto/product.dto';
 import mongoose from 'mongoose';
 import { updateProductDto } from './dto/update-product.dto';
@@ -18,90 +18,67 @@ import { cartDto } from './dto/cart.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Response } from 'express';
 
+//  controller for the store, handling various endpoints related to shop operations
 @Controller('store')
-@UseGuards(AuthGuard)
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
-
+  // Endpoint to get filtered products based on query parameters
+  @UseGuards(AuthGuard)
   @Get('/filtered')
-  async getFilteredProduct(
-    @Query('title') title: string,
-    @Query('category') category: string,
-    @Query('LowToHigh') LowToHigh: string,
-    @Query('HighToLow') HighToLow: string,
-    @Query('sortByOff') sortByOff: string,
-    @Query('maxPrice') maxPrice: number,
-    @Query('minPrice') minPrice: number,
-    @Query('id') id: string,
-    @Query('name') name: string,
-    @Query('limit') limit?: number,
-    @Query('page') page?: number,
-  ) {
-    const queryParams = {
-      title,
-      category,
-      LowToHigh,
-      HighToLow,
-      sortByOff,
-      maxPrice,
-      minPrice,
-      id,
-      name,
-      limit,
-      page,
-    };
-    return await this.shopService.getFilteredProduct(queryParams);
+  async getFilteredProduct(@Query() Query: QueryParams) {
+    return await this.shopService.getFilteredProduct(Query);
   }
 
+  // Endpoint to get cart products for a specific user
+  @UseGuards(AuthGuard)
   @Get('/cart')
   async getCartProduct(@Query('userId') userId: string) {
     return await this.shopService.getCartProduct(userId);
   }
 
+  // Endpoint to get all orders
+  @UseGuards(AuthGuard)
   @Get('/orders')
   async getAllOrders() {
     return await this.shopService.getAllOrders();
   }
 
+  // Endpoint to add a new product
+  @UseGuards(AuthGuard)
   @Post('/addProduct')
   async addProduct(@Body() productDto: ProductDto): Promise<string> {
     await this.shopService.addProduct(productDto);
     return 'product added successfully';
   }
 
+  // Endpoint to add a product to the cart
+  @UseGuards(AuthGuard)
   @Post('/addToCart')
   async addCartProduct(@Body() cartDto: cartDto): Promise<string> {
     await this.shopService.addCartProduct(cartDto);
     return 'product added to cart successfully';
   }
 
+  // Endpoint to remove a product from the cart
+  @UseGuards(AuthGuard)
   @Delete('/removeCart')
   async removeCart(
     @Body() data: { userId: string; productId: string },
   ): Promise<string> {
     const { userId, productId } = data;
-    this.shopService.removeCart(userId, productId);
-    return 'product removed from cart successfully';
-  }
-  @Patch('/updateCart')
-  async updateCart(
-    @Body() data: { userId: string; productId: string[] },
-  ): Promise<string> {
-    try {
-      const { userId, productId } = data;
-      await this.shopService.updateCart(userId, productId);
-      return 'Product status updated successfully';
-    } catch (error) {
-      throw new BadRequestException('Failed to update product status');
-    }
+    return await this.shopService.removeCart(userId, productId);
   }
 
+  // Endpoint to remove a product from the store
+  @UseGuards(AuthGuard)
   @Delete('/removeProduct')
   async removeProduct(@Query('id') id: string): Promise<string> {
     this.shopService.removeProduct(id);
     return 'product removed successfully';
   }
 
+  // Endpoint to update product details
+  @UseGuards(AuthGuard)
   @Patch('/updateProduct')
   async updateProduct(
     @Query('id') id: mongoose.Types.ObjectId,
@@ -110,6 +87,8 @@ export class ShopController {
     await this.shopService.updateProduct(id, updateData);
     return 'product detail updated successfully';
   }
+  // Endpoint to purchase a product
+  @UseGuards(AuthGuard)
   @Patch('/purchase')
   async purchaseProduct(
     @Body()
@@ -135,18 +114,15 @@ export class ShopController {
     return { message: purchaseMessage };
   }
 
+  // Endpoint to handle webhook events
   @Post('webhook')
-  webhook(@Body() event: any, @Res() response: Response) {
-    try {
-    } catch (err) {
-      return response.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    this.shopService.handleStripeWebhook(event);
-
+  async webhook(@Body() event: any, @Res() response: Response) {
+    await this.shopService.handleStripeWebhook(event);
     response.send();
   }
 
+  // Endpoint to process a refund
+  @UseGuards(AuthGuard)
   @Patch('/refund')
   async refund(@Body() paymentIdObj: { [key: string]: string }) {
     const paymentId = Object.keys(paymentIdObj)[0];

@@ -20,7 +20,8 @@ import { Cron } from '@nestjs/schedule';
 import { MailerService } from 'src/mailer/mailer.service';
 import { ChangePasswordDto } from './dto/password-change.dto';
 
-interface QueryParams {
+// interface for query parameters
+export interface QueryParams {
   name?: string;
   email?: string;
   age?: number;
@@ -33,11 +34,12 @@ interface QueryParams {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private UserModel: mongoose.Model<User>,
-    private jwtService: JwtService,
-    private mailerService: MailerService,
+    @InjectModel(User.name) private UserModel: mongoose.Model<User>, // Inject the User model
+    private jwtService: JwtService, // Inject JwtService
+    private mailerService: MailerService, // Inject MailerService
   ) {}
 
+  // Method for user signup
   async signup(createUserDto: CreateUserDto, res: Response): Promise<void> {
     const { password, confirmPassword, email } = createUserDto;
     const existingUser = await this.UserModel.findOne({ email });
@@ -66,6 +68,7 @@ export class AuthService {
     });
   }
 
+  // Method for user login
   async login(loginUserDto: LoginUserDto, res: Response): Promise<void> {
     const user = await this.UserModel.findOne({
       email: loginUserDto.email,
@@ -76,7 +79,6 @@ export class AuthService {
     ) {
       throw new UnauthorizedException('Please enter valid email or password ');
     }
-
     if (user.state !== 'active') {
       throw new UnauthorizedException('Your account is currently inactive');
     }
@@ -90,6 +92,7 @@ export class AuthService {
     });
   }
 
+  // Method to get all users with pagination
   async getAllUsers(
     page: number,
     limit: number,
@@ -107,6 +110,7 @@ export class AuthService {
     return { users, total };
   }
 
+  // Method to get filtered users based on query parameters
   async getFilteredUser(queryParams: QueryParams): Promise<User[]> {
     const filter: any = {};
     const filterableKeys: (keyof QueryParams)[] = [
@@ -124,14 +128,15 @@ export class AuthService {
       }
     });
     const users = await this.UserModel.find(filter).select(
-      '-password -_id -state',
+      '-password -_id -state -resetPasswordExpires -passwordChangedAt -__v',
     );
     if (!users || users.length === 0) {
-      throw new BadRequestException('No users found with the given criteria');
+      return [];
     }
     return users;
   }
 
+  // Method to handle forgot password functionality
   async forgotPassword(email: string): Promise<string> {
     const user = await this.UserModel.findOne({ email });
     if (!user) {
@@ -154,6 +159,7 @@ export class AuthService {
     return resetToken;
   }
 
+  // Method to handle password reset functionality
   async resetPassword(
     resetPasswordToken: string,
     newPassword: string,
@@ -175,6 +181,7 @@ export class AuthService {
     return 'password changed successfully';
   }
 
+  // Helper method to generate reset token
   private async generateResetToken(
     loginUserDto: LoginUserDto,
   ): Promise<string> {
@@ -187,6 +194,7 @@ export class AuthService {
     return token;
   }
 
+  // Method to add a new user
   async addUser(createUserDto: CreateUserDto, res: Response): Promise<void> {
     const { password, confirmPassword, email } = createUserDto;
     const existingUser = await this.UserModel.findOne({ email });
@@ -204,6 +212,7 @@ export class AuthService {
     res.json(userResponse);
   }
 
+  // Method to delete a user based on their role
   async deleteUser(id: mongoose.Types.ObjectId, role: string): Promise<string> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotAcceptableException('Invalid ID');
@@ -224,6 +233,7 @@ export class AuthService {
     }
   }
 
+  // Cron job to delete inactive users every day at midnight
   @Cron('0 0 * * *') // Runs every day at midnight
   async deleteInactiveUsers() {
     const deletionTimeThreshold = new Date(Date.now());
@@ -234,6 +244,7 @@ export class AuthService {
     return `${result.deletedCount} inactive users deleted`;
   }
 
+  // Method to upload a user image
   async uploadImage(userId: string, imgUrl: string): Promise<string> {
     if (!userId || !imgUrl) {
       throw new BadRequestException('User ID and image URL must be provided');
@@ -248,6 +259,7 @@ export class AuthService {
     return user.src;
   }
 
+  // Method to update user information
   async updateUser(
     id: mongoose.Types.ObjectId,
     updateData: updateUser,
@@ -255,7 +267,8 @@ export class AuthService {
     return await updateOne(this.UserModel, id, updateData);
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+  // Method to change user password
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<string> {
     const { userId, oldPassword, newPassword } = changePasswordDto;
     const user = await this.UserModel.findById(userId).exec();
 
@@ -272,5 +285,6 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
+    return 'Password changed successfully';
   }
 }

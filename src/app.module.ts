@@ -29,7 +29,7 @@ import { MulterModule } from '@nestjs/platform-express';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
+    // import of all modules
     ExercisesModule,
     YogaModule,
     DietPlanModule,

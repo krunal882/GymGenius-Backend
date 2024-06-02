@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'; // Import decorators from mongoose
+import { Document } from 'mongoose'; // Import Document interface
 
 @Schema()
 export class FoodNutrition extends Document {

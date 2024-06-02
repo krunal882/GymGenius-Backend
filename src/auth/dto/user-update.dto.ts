@@ -1,3 +1,4 @@
+// Import necessary decorators and validators from 'class-validator' library
 import {
   IsEmail,
   IsEnum,
@@ -6,8 +7,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Role } from 'src/utils/role.enum';
+import { Role } from 'src/utils/role.enum'; // Import Role enum from utils
 
+// updateUser class defines the structure and validation rules for updating a user's details
 export class updateUser {
   @IsNotEmpty({ message: 'User name is required' })
   @IsString({ message: 'User name must be a string' })
@@ -26,17 +28,17 @@ export class updateUser {
   @IsString({ message: 'Phone number must be a string' })
   number: string;
 
-  @IsOptional()
+  @IsOptional() // Role is optional
   @IsString({ message: 'Role must be a string' })
   @IsEnum(Role, { message: 'Invalid role' })
   role?: string;
 
-  @IsOptional()
+  @IsOptional() // Profile image source is optional
   @IsNotEmpty({ message: 'Profile image is required' })
   @IsString({ message: 'Profile image name must be a string' })
   src?: string;
 
-  @IsOptional()
+  @IsOptional() // State is optional
   @IsString({ message: 'State must be a string' })
   state?: string;
 }

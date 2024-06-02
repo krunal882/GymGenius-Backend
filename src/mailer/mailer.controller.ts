@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common'; // Import validation decorators
 import { MailerService } from './mailer.service';
 import { sendEmailDto } from './dto/mail.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -8,14 +8,10 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class MailerController {
   constructor(private readonly mailerService: MailerService) {}
 
+  // POST endpoint for sending email
   @Post('/email')
   async sendMail(@Body() sendEmailDto: sendEmailDto) {
-    try {
-      const result = await this.mailerService.sendEmail(sendEmailDto);
-      return { message: 'Email sent successfully', result };
-    } catch (error) {
-      console.error('Error sending email:', error);
-      return { success: false, message: 'Failed to send email', error };
-    }
+    const result = await this.mailerService.sendEmail(sendEmailDto);
+    return { message: 'Email sent successfully', result };
   }
 }

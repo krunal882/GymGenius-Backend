@@ -5,8 +5,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-} from 'class-validator';
-import { ForceType, ExerciseLevel } from '../../utils/role.enum';
+} from 'class-validator'; // Import validation decorators
+import { ForceType, ExerciseLevel } from '../../utils/role.enum'; // Import enums for ForceType and ExerciseLevel
 
 export class updateExercise {
   @IsString({ message: 'Exercise name must be a string' })
@@ -23,9 +23,9 @@ export class updateExercise {
   @IsEnum(ExerciseLevel, {
     message: 'Exercise level must be one of: beginner, intermediate, expert',
   })
-  level: string = ExerciseLevel.INTERMEDIATE;
+  level: string = ExerciseLevel.INTERMEDIATE; // Set default value for 'level' if not provided
 
-  @IsOptional()
+  @IsOptional() // 'mechanic' is optional
   @IsString({ message: 'Mechanic must be a string' })
   mechanic?: string;
 
@@ -41,11 +41,11 @@ export class updateExercise {
   @IsArray({ message: 'Primary muscles should be an array of strings' })
   primaryMuscles: string[];
 
-  @IsOptional()
+  @IsOptional() // 'secondaryMuscles' is optional
   @IsArray({ message: 'secondaryMuscles should be an array of string' })
-  secondaryMuscles: string[];
+  secondaryMuscles?: string[];
 
-  @IsString({ message: 'Each instruction must be a string' })
-  @IsNotEmpty({ message: 'Instructions are required' })
-  instructions: string;
+  @ArrayNotEmpty({ message: 'instructions should not be empty' })
+  @IsArray({ message: 'instructions should be an array of strings' })
+  instructions: string[];
 }

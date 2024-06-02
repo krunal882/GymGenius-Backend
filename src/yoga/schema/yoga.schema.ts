@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+// Mongoose schema for YogaPose document
 @Schema()
 export class YogaPose extends Document {
   @Prop({
@@ -58,4 +59,5 @@ export class YogaPose extends Document {
   url_png: string;
 }
 
+// Mongoose schema for YogaPose document
 export const YogaPoseSchema = SchemaFactory.createForClass(YogaPose);

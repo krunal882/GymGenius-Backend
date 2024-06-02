@@ -6,9 +6,10 @@ import { UserSchema } from './schema/user.schema';
 import { MailerService } from '../mailer/mailer.service';
 
 @Module({
+  // Import MongooseModule and define the User model with UserSchema
   imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
   controllers: [AuthController],
   providers: [AuthService, MailerService],
-  exports: [AuthService],
+  exports: [AuthService], // Export AuthService to be used in other modules
 })
 export class AuthModule {}

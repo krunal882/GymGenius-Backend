@@ -1,3 +1,4 @@
+// Import necessary decorators and classes from @nestjs/mongoose and mongoose
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -9,12 +10,14 @@ export class Product extends Document {
   })
   category: string;
 
+  // src property which is optional
   @Prop({
     required: false,
     type: String,
   })
   src: string;
 
+  // cloudImg property which is optional
   @Prop({
     required: false,
     type: String,
@@ -39,6 +42,7 @@ export class Product extends Document {
   })
   price: number;
 
+  // original price, off , tag , state property is optional
   @Prop({ required: false, type: String })
   original_price: string;
 
@@ -51,5 +55,5 @@ export class Product extends Document {
   @Prop({ required: false, type: String })
   state: string;
 }
-
+// Create a Mongoose schema from the Product class
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -6,6 +6,7 @@ import { DietPlanSchema } from './schema/diet-paln.schema';
 
 @Module({
   imports: [
+    // Import MongooseModule and define the schema for 'DietPlan'
     MongooseModule.forFeature([{ name: 'DietPlan', schema: DietPlanSchema }]),
   ],
   controllers: [DietPlanController],

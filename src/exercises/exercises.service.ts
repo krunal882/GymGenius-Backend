@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotAcceptableException,
-} from '@nestjs/common';
+} from '@nestjs/common'; // Import common exceptions and Injectable decorator
 import { InjectModel } from '@nestjs/mongoose';
 import { Exercise } from './schema/exercise.schema';
 import mongoose from 'mongoose';
@@ -10,6 +10,7 @@ import { exerciseDto } from './dto/exercise.dto';
 import { createOne, deleteOne, updateOne } from 'src/factoryFunction';
 import { updateExercise } from './dto/exercise-update.dto';
 
+// Interface defining the structure of an exercise
 interface exercise {
   force?: string;
   level?: string;
@@ -21,7 +22,9 @@ interface exercise {
   _id?: string;
 }
 
-interface QueryParams {
+// Interface defining the structure of query parameters
+export interface QueryParams {
+  exerciseId?: string;
   force?: string;
   level?: string;
   equipment?: string;
@@ -41,9 +44,10 @@ type ExerciseFilter = Partial<Omit<exercise, 'name'>> & {
 @Injectable()
 export class ExercisesService {
   constructor(
-    @InjectModel(Exercise.name) private exerciseModel: mongoose.Model<Exercise>,
+    @InjectModel(Exercise.name) private exerciseModel: mongoose.Model<Exercise>, // Inject the Mongoose model for Exercise
   ) {}
 
+  // Method to retrieve all exercises with pagination
   async getAllExercises(limit: number, page: number): Promise<Exercise[]> {
     if (limit <= 0 || page <= 0) {
       throw new BadRequestException('Limit and page must be positive numbers.');
@@ -59,6 +63,7 @@ export class ExercisesService {
     return exercises;
   }
 
+  // Method to retrieve filtered exercises based on query parameters
   async getFilteredExercise(queryParams: QueryParams): Promise<Exercise[]> {
     const filter: ExerciseFilter = {};
     const limit = queryParams.limit || 10;
@@ -70,6 +75,7 @@ export class ExercisesService {
     const skip = (page - 1) * limit;
 
     const filterableKeys = [
+      'exerciseId',
       'force',
       'level',
       'equipment',
@@ -89,17 +95,18 @@ export class ExercisesService {
         }
       }
     });
-
     const exercises = await this.exerciseModel
       .find(filter)
       .skip(skip)
       .limit(limit);
     return exercises;
   }
+  // Method to create a new exercise
   async createExercise(exerciseDto: exerciseDto): Promise<Exercise> {
     return await createOne(this.exerciseModel, exerciseDto);
   }
 
+  // Method to delete an exercise
   async deleteExercise(id: string): Promise<void> {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) {
@@ -111,6 +118,7 @@ export class ExercisesService {
     await deleteOne(this.exerciseModel, objectId);
   }
 
+  // Method to update an exercise
   async updateExercise(
     _id: mongoose.Types.ObjectId,
     updateData: updateExercise,
