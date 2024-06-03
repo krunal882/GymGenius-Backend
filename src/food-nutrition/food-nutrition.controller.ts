@@ -16,7 +16,6 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { FoodNutrition } from './schema/food.schema';
 
 @Controller('foodNutrition') // Define controller base route
-@UseGuards(AuthGuard) // Apply authentication guard to controller
 export class FoodNutritionController {
   constructor(private readonly foodNutritionService: FoodNutritionService) {} // Inject FoodNutritionService
 
@@ -32,18 +31,21 @@ export class FoodNutritionController {
   }
 
   // Endpoint to add a new food item
+  @UseGuards(AuthGuard) // Apply authentication guard to controller
   @Post('/addFoodItem')
   async addFoodItem(@Body() FoodNutritionDto: foodNutritionDto): Promise<void> {
     await this.foodNutritionService.addFoodItem(FoodNutritionDto);
   }
 
   // Endpoint to delete a food item
+  @UseGuards(AuthGuard)
   @Delete('/deleteFoodItem')
   async deleteFoodItem(@Query('id') id: string): Promise<void> {
     await this.foodNutritionService.deleteFoodItem(id);
   }
 
   // Endpoint to update a food item
+  @UseGuards(AuthGuard)
   @Patch('/updateFoodItem')
   async updateDietPlan(
     @Query('id') _id: string,

@@ -17,7 +17,6 @@ import { YogaPose } from './schema/yoga.schema';
 import { QueryParams } from 'src/exercises/exercises.service';
 
 @Controller('yoga-poses')
-@UseGuards(AuthGuard)
 export class YogaController {
   constructor(private readonly yogaService: YogaService) {}
 
@@ -38,18 +37,21 @@ export class YogaController {
   }
 
   // Endpoint for adding a new yoga pose
+  @UseGuards(AuthGuard)
   @Post('/addYoga')
   async addYogaPose(@Body() yogaPoseDto: YogaPoseDto): Promise<YogaPose> {
     return await this.yogaService.addYogaPose(yogaPoseDto);
   }
 
   // Endpoint for deleting a yoga pose
+  @UseGuards(AuthGuard)
   @Delete('/deleteYoga')
   async deleteYogaPose(@Query('id') id: string): Promise<void> {
     await this.yogaService.deleteYogaPose(id);
   }
 
   // Endpoint for updating a yoga pose
+  @UseGuards(AuthGuard)
   @Patch('/updateYoga')
   async updateYogaPose(
     @Query('id') id: mongoose.Types.ObjectId,

@@ -1,10 +1,8 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'; // Import validation decorators
+import { Body, Controller, Post } from '@nestjs/common'; // Import validation decorators
 import { MailerService } from './mailer.service';
 import { sendEmailDto } from './dto/mail.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('mailer')
-@UseGuards(AuthGuard)
 export class MailerController {
   constructor(private readonly mailerService: MailerService) {}
 

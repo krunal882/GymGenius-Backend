@@ -17,7 +17,6 @@ import { DietPlan } from './schema/diet-paln.schema';
 import { QueryParams } from './diet-plan.service'; // import interface from the service
 
 @Controller('diet-plans')
-@UseGuards(AuthGuard)
 export class DietPlanController {
   constructor(private readonly dietPlanService: DietPlanService) {}
 
@@ -37,18 +36,21 @@ export class DietPlanController {
   }
 
   //POST endpoint  to add new diet plan
+  @UseGuards(AuthGuard)
   @Post('/add')
   async createDietPlan(@Body() DietPlanDto: dietPlanDto): Promise<void> {
     await this.dietPlanService.createDietPlan(DietPlanDto);
   }
 
   // DELETE endpoint to remove diet plan
+  @UseGuards(AuthGuard)
   @Delete('/delete')
   async deleteDietPlan(@Query('id') id: string): Promise<void> {
     await this.dietPlanService.deleteDietPlan(id);
   }
 
   //PATCH endpoint to update dietPlan
+  @UseGuards(AuthGuard)
   @Patch('/update')
   async updateDietPlan(
     @Query('id') id: mongoose.Types.ObjectId,

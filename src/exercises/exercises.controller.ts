@@ -16,7 +16,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Exercise } from './schema/exercise.schema';
 
 @Controller('exercises')
-@UseGuards(AuthGuard) // Use authentication guard for all routes in this controller
+// Use authentication guard for all routes in this controller
 export class ExercisesController {
   constructor(private readonly exerciseService: ExercisesService) {} // Inject ExercisesService
 
@@ -34,16 +34,19 @@ export class ExercisesController {
     return await this.exerciseService.getFilteredExercise(Query); // Call service method to get filtered exercises
   }
 
+  @UseGuards(AuthGuard)
   @Post('/addExercise') // Define route to add an exercise
   async createExercise(@Body() ExerciseDto: exerciseDto): Promise<Exercise> {
     return await this.exerciseService.createExercise(ExerciseDto); // Call service method to create an exercise
   }
 
+  @UseGuards(AuthGuard)
   @Delete('/deleteExercise') // Define route to delete an exercise
   async deleteExercise(@Query('id') id: string): Promise<void> {
     this.exerciseService.deleteExercise(id); // Call service method to delete an exercise
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/updateExercise') // Define route to update an exercise
   async updateDietPlan(
     @Query('id') _id: string,

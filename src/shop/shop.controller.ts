@@ -23,7 +23,6 @@ import { Response } from 'express';
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
   // Endpoint to get filtered products based on query parameters
-  @UseGuards(AuthGuard)
   @Get('/filtered')
   async getFilteredProduct(@Query() Query: QueryParams) {
     return await this.shopService.getFilteredProduct(Query);
