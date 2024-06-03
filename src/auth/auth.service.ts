@@ -124,7 +124,12 @@ export class AuthService {
     ];
     filterableKeys.forEach((key) => {
       if (queryParams[key]) {
-        filter[key] = queryParams[key];
+        if (key === 'name') {
+          // Use regex for partial and case-insensitive search
+          filter[key] = { $regex: new RegExp(queryParams[key], 'i') };
+        } else {
+          filter[key] = queryParams[key];
+        }
       }
     });
     const users = await this.UserModel.find(filter).select(

@@ -11,20 +11,20 @@ import { Role } from 'src/utils/role.enum'; // Import Role enum from utils
 
 // updateUser class defines the structure and validation rules for updating a user's details
 export class updateUser {
-  @IsNotEmpty({ message: 'User name is required' })
+  @IsOptional() // name is optional
   @IsString({ message: 'User name must be a string' })
   name: string;
 
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsOptional() // email is optional
   @IsEmail({}, { message: 'Invalid email format' })
   @IsString({ message: 'Email must be a string' })
   email: string;
 
-  @IsNotEmpty({ message: 'Age is required' })
+  @IsOptional() // age is optional
   @IsNumber({}, { message: 'Age must be a number' })
   age: number;
 
-  @IsNotEmpty({ message: 'Phone number is required' })
+  @IsOptional() // number is optional
   @IsString({ message: 'Phone number must be a string' })
   number: string;
 
