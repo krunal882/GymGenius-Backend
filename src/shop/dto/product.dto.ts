@@ -42,7 +42,7 @@ export class ProductDto {
 
   @IsOptional() // state of product is optional
   @IsEnum(['active', 'inactive'], {
-    message: 'product state must be active or de-active',
+    message: 'product state must be active or inactive',
   })
   @IsString({ message: 'product tag must be a string' })
   state?: string;
