@@ -23,7 +23,7 @@ export class User extends Document {
   @Prop({ type: String }) // Profile image source is optional and must be a string
   src: string;
 
-  @Prop({ required: true, select: false, type: String })
+  @Prop({ required: true, type: String })
   password: string;
 
   @Prop({ default: 'active', type: String }) // State is optional, defaults to 'active', and must be a string
