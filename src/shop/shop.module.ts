@@ -4,7 +4,7 @@ import { ShopController } from './shop.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ProductSchema } from './schema/product.schema';
-import { CartSchema } from './schema/History.schema';
+import { CartSchema } from './schema/history.schema';
 import { ShopService } from './shop.service';
 import { AuthModule } from 'src/auth/auth.module';
 
