@@ -21,7 +21,8 @@ async function bootstrap() {
 
   // Enabling CORS with specific configuration to allow requests from certain origins
   app.enableCors({
-    origin: 'http://localhost:8081', // Allowing requests from this origin
+    origin:
+      'https://gym-genius-frontend-oxzr8vo1d-krunal-vekariyas-projects.vercel.app', // Allowing requests from this origin
     credentials: true, // Allowing credentials such as cookies and authorization headers
   });
 
