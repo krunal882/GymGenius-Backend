@@ -10,7 +10,7 @@ import { FoodNutritionModule } from './food-nutrition/food-nutrition.module';
 import { ShopModule } from './shop/shop.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from './mailer/mailer.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { MulterModule } from '@nestjs/platform-express';
@@ -18,16 +18,21 @@ import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot('mongodb://localhost/FitFlex'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
+    }),
     MulterModule.register(),
     JwtModule.register({
       global: true,
       secret: 'okaysomthigngoorjofjdo',
       signOptions: { expiresIn: '15d' },
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
     }),
     // import of all modules
     ExercisesModule,
