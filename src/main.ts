@@ -43,6 +43,6 @@ async function bootstrap() {
   await app.init();
 
   // Starting the application, listening on port 3000
-  await app.listen(3000, '0.0.0.0');
+  await app.listen(3001, '0.0.0.0');
 }
 bootstrap();
