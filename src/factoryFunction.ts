@@ -9,22 +9,22 @@ export const getAll = async <T>(
   model: Model<T>, // Mongoose model for the collection
   options?: any, // Optional query options
 ): Promise<T[] | null> => {
-  return await model.find({ options }); // Find all documents with optional query options
+  return await model.find({ options });
 };
 
 // Function to create a new document in the collection
 export const createOne = async <T>(
-  model: Model<T>, // Mongoose model for the collection
+  model: Model<T>,
   bodyData: any, // Data for creating the document
 ): Promise<T | null> => {
-  return await model.create(bodyData); // Create a new document with the provided data
+  return await model.create(bodyData);
 };
 
 // Function to update an existing document in the collection
 export const updateOne = async <T>(
-  model: Model<T>, // Mongoose model for the collection
+  model: Model<T>,
   id: mongoose.Types.ObjectId, // ID of the document to update
-  updateData: any, // Data for updating the document
+  updateData: any,
 ): Promise<T | null> => {
   // Check if updateData contains sensitive fields like password
   const keys: string[] = Object.keys(updateData);
@@ -48,7 +48,7 @@ export const updateOne = async <T>(
 
 // Function to delete a document from the collection
 export const deleteOne = async <T>(
-  model: Model<T>, // Mongoose model for the collection
+  model: Model<T>,
   id: mongoose.Types.ObjectId, // ID of the document to delete
 ): Promise<void> => {
   // Find and delete the document by ID

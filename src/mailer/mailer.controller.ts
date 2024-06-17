@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import { Body, Controller, Post } from '@nestjs/common'; // Import validation decorators
 import { MailerService } from './mailer.service';
 import { sendEmailDto } from './dto/mail.dto';

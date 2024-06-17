@@ -14,6 +14,7 @@ import { cartDto } from './dto/cart.dto';
 import { createOne, deleteOne } from 'src/factoryFunction';
 import { updateProductDto } from './dto/update-product.dto';
 import { AuthService } from './../auth/auth.service';
+import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 
 // interface for query parameters
@@ -40,10 +41,9 @@ export class ShopService {
     @InjectModel('Product') private productModel: mongoose.Model<Product>,
     @InjectModel('History') private historyModel: mongoose.Model<History>,
     private authService: AuthService,
+    private readonly configService: ConfigService,
   ) {
-    this.stripe = new Stripe(
-      'sk_test_51Os07pSDcQHlNOyRkUjAGezWu07HqKIcKkrgWlBqiLvr7b1d1WjYV81nbS9Mnc43GBmtWFe9W13Om1qfWr1CxpYp00qUTDJ0bi',
-    );
+    this.stripe = new Stripe(this.configService.get<string>('STRIPE_KEY'));
   }
 
   // Retrieve cart products for a specific user
@@ -309,7 +309,7 @@ export class ShopService {
       line_items: [
         {
           price_data: {
-            currency: 'aed',
+            currency: 'usd',
             product_data: {
               name: title,
               description: `you are purchasing the  product`,

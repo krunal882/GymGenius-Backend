@@ -10,7 +10,7 @@ export class dietFoodDto {
   @IsString({ message: 'food quantity must be in string' })
   quantity: string;
 
-  @IsNotEmpty({ message: 'please provide total days of diet plan' })
+  @IsNotEmpty({ message: 'please provide calories of diet plan' })
   @IsNumber()
   calories: number;
 

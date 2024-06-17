@@ -41,7 +41,7 @@ export class CreateUserDto {
 
   @IsOptional() // State is optional
   @IsString({ message: 'state must be a string' })
-  @IsEnum(State, { message: 'Invalid role' })
+  @IsEnum(State, { message: 'Invalid state' })
   state: string;
 
   @IsNotEmpty({ message: 'Please provide a password' })

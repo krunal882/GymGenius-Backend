@@ -15,7 +15,7 @@ interface Dietplan {
   diet_type?: string;
   purpose?: string;
   _id?: string;
-  plan_name?: {};
+  plan_name?: object;
 }
 
 // Interface defining the structure of query parameters

@@ -32,7 +32,7 @@ export class YogaPose extends Document {
   sanskrit_name: string;
 
   @Prop({
-    required: [true, 'please provide translation of yga-pose name'],
+    required: [true, 'please provide translation of yoga-pose name'],
     type: String,
   })
   translation_name: string;

@@ -15,7 +15,7 @@ export class updateYogaPoseDto {
   english_name: string;
 
   @IsOptional() // optional field
-  @IsString({ message: 'english name must be a string' })
+  @IsString({ message: 'adapted sanskrit name must be a string' })
   sanskrit_name_adapted?: string;
 
   @IsNotEmpty({ message: 'please provide sanskrit name of yoga' })

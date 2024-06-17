@@ -75,7 +75,7 @@ export class AuthService {
     }).select('+password');
     if (
       !user ||
-      !(await await bcrypt.compare(loginUserDto.password, user.password))
+      !(await bcrypt.compare(loginUserDto.password, user.password))
     ) {
       throw new UnauthorizedException('Please enter valid email or password ');
     }

@@ -11,7 +11,7 @@ export class Exercise extends Document {
   name: string;
 
   @Prop({
-    required: [true, 'Please provide the exercise name'],
+    required: [true, 'Please provide the exercise force'],
     type: String,
 
     enum: [ForceType],

@@ -1,3 +1,4 @@
+/*eslint-disable*/
 // Import necessary decorators, modules, and classes from NestJS and other libraries
 import {
   Body,
