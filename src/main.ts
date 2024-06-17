@@ -23,6 +23,8 @@ async function bootstrap() {
   app.enableCors({
     origin: 'https://gym-genius-frontend.vercel.app', // Allowing requests from this origin
     credentials: true, // Allowing credentials such as cookies and authorization headers
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   // Applying global validation pipe for request validation
